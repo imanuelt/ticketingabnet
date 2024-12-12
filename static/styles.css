@@ -54,7 +54,7 @@ header h1 {
 
 main {
     padding: 20px;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
 }
 
@@ -80,9 +80,8 @@ main {
 
 /* Table Styling */
 table {
-    width: 100%; /* Make the table occupy the full width of the container */
-    max-width: 1400px; /* Add a maximum width to avoid stretching too much on larger screens */
-    margin: 0 auto; /* Center the table on the page */
+    width: 95%; /* Adjust table width */
+    margin: 0 auto; /* Center the table */
     border-collapse: collapse;
     margin-top: 20px;
     background-color: white;
@@ -121,68 +120,66 @@ textarea, select, input[type="text"] {
 /* Make Description column wider */
 table td:nth-child(6),
 table th:nth-child(6) {
-    width: 30%; /* Make the Description column 30% of the table width */
+    width: 30%; /* Adjust the description column width */
 }
 
 /* Make Headline column wider */
 table td:nth-child(3),
 table th:nth-child(3) {
-    width: 20%; /* Adjust headline column width */
+    width: 20%;
 }
 
 /* Adjust height of rows */
 table th, table td {
-    height: 60px; /* Adjust row height */
+    height: auto; /* Adjust height dynamically */
 }
 
-/* Create Form Styling */
-.create-form {
-    max-width: 600px; /* Restrict form width */
-    margin: 0 auto; /* Center the form */
+/* Form Styling for Create Page */
+.form-container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
     padding: 20px;
-    background-color: #f9f9f9;
     border-radius: 5px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.create-form .form-group {
+.form-group {
     margin-bottom: 15px;
 }
 
-.create-form label {
+.form-group label {
     display: block;
-    font-weight: bold;
     margin-bottom: 5px;
+    font-weight: bold;
 }
 
-.create-form input[type="text"],
-.create-form select,
-.create-form textarea {
+textarea, input, select {
     width: 100%;
     padding: 10px;
     font-size: 14px;
     border: 1px solid #ddd;
     border-radius: 3px;
-    margin-top: 5px;
-}
-
-.create-form textarea {
     resize: vertical;
 }
 
-.create-form button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 3px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
+textarea {
+    height: 100px;
 }
 
-.create-form button:hover {
+.btn-primary {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
     background-color: #0056b3;
 }
 
@@ -201,10 +198,5 @@ table th, table td {
         content: attr(data-label);
         font-weight: bold;
         display: block;
-    }
-
-    .create-form {
-        width: 100%;
-        padding: 10px;
     }
 }
