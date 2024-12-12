@@ -1,8 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from azure.cosmos import CosmosClient
 from datetime import datetime
+from dotenv import load_dotenv
 import pytz
 import os
+load_dotenv()
+
 COSMOS_DB_KEY = os.getenv("COSMOS_DB_KEY")
 app = Flask(__name__)
 
@@ -11,7 +14,6 @@ israel_tz = pytz.timezone('Asia/Jerusalem')
 
 # Cosmos DB configuration
 COSMOS_DB_URI = "https://ticketingabnet.documents.azure.com:443/"
-COSMOS_DB_KEY = "REPLACED_SECRET"
 DATABASE_NAME = "ticketingdb"
 CONTAINER_NAME = "ticketingdbcont"
 
