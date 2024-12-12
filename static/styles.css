@@ -80,8 +80,9 @@ main {
 
 /* Table Styling */
 table {
-    width: 90%; /* Adjust this to control the width (e.g., 90% of the page) */
-    margin: 0 auto; /* This centers the table on the page */
+    width: 100%; /* Make the table occupy the full width of the container */
+    max-width: 1200px; /* Add a maximum width to avoid stretching too much on larger screens */
+    margin: 0 auto; /* Center the table on the page */
     border-collapse: collapse;
     margin-top: 20px;
     background-color: white;
@@ -98,15 +99,17 @@ table th, table td {
     padding: 10px;
     border: 1px solid #ddd;
     text-align: left;
+    vertical-align: top; /* Align text to the top for multi-line content */
+    white-space: normal; /* Allow text wrapping */
 }
 
 table th {
     font-size: 14px;
 }
 
-/* Ensure inputs fit within their cells */
-textarea, select {
-    width: 98%; /* Adjust to fit input fields inside the column */
+/* Ensure input fields and textareas fit within their cells */
+textarea, select, input[type="text"] {
+    width: 95%; /* Adjust input width to fit neatly within cells */
     box-sizing: border-box;
     padding: 5px;
     font-size: 14px;
@@ -115,10 +118,15 @@ textarea, select {
     resize: none;
 }
 
-/* Adjust column widths as needed */
+/* Make Description column wider */
 table td:nth-child(6),
 table th:nth-child(6) {
-    width: 40%; /* Adjust column width as needed */
+    width: 50%; /* Make the Description column half the table width */
+}
+
+/* Adjust height of rows */
+table th, table td {
+    height: 60px; /* Increase or decrease this for row height */
 }
 
 /* Responsive Design */
