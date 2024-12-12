@@ -19,22 +19,32 @@ header h1 {
 }
 
 .button-group {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+    gap: 10px; /* Space between buttons */
     margin-top: 10px;
 }
 
 .btn {
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     margin: 5px;
-    padding: 10px 15px;
+    padding: 5px 10px; /* Reduced padding */
     background-color: white;
     color: #007bff;
     text-decoration: none;
     border-radius: 5px;
     font-size: 14px;
+    min-width: 100px; /* Ensure buttons don't shrink too much */
+    border: 1px solid #007bff;
 }
 
 .btn img {
-    vertical-align: middle;
+    width: 16px; /* Fix image size */
+    height: 16px; /* Fix image size */
     margin-right: 5px;
 }
 
@@ -48,6 +58,7 @@ main {
     margin: 0 auto;
 }
 
+/* Ticket Stats */
 .ticket-stats {
     display: flex;
     justify-content: space-between;
@@ -67,6 +78,7 @@ main {
     margin: 0 0 10px;
 }
 
+/* Table Styling */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -91,27 +103,19 @@ table th {
     font-size: 14px;
 }
 
-table td input,
-table td select {
-    width: 100%;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
     header h1 {
         font-size: 18px;
     }
 
-    .ticket-stats {
-        flex-direction: column;
+    .button-group {
+        flex-direction: column; /* Stack buttons on smaller screens */
     }
 
-    .stat-box {
-        width: 100%;
-        margin-bottom: 10px;
+    .btn {
+        width: 100%; /* Buttons take full width */
+        font-size: 16px; /* Slightly larger text for mobile */
     }
 
     table {
@@ -127,10 +131,5 @@ table td select {
         content: attr(data-label);
         font-weight: bold;
         display: block;
-    }
-
-    table td input,
-    table td select {
-        width: calc(100% - 10px);
     }
 }
