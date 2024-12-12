@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Closed Tickets - ABnet Microsoft Management System</title>
+    <title>Create New Ticket</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
     <header>
-        <h1>ABnet Microsoft Management System</h1>
+        <h1>Create New Ticket</h1>
         <div class="button-group">
             <a href="/" class="btn">
                 <img src="{{ url_for('static', filename='images/home.png') }}" alt="Home"> Home
-            </a>
-            <a href="/create" class="btn">
-                <img src="{{ url_for('static', filename='images/open_ticket.png') }}" alt="Open Ticket"> Open Ticket
             </a>
             <a href="/closed" class="btn">
                 <img src="{{ url_for('static', filename='images/closed_ticket.png') }}" alt="Closed Tickets"> Closed Tickets
@@ -22,41 +19,43 @@
         </div>
     </header>
     <main>
-        <h2>Closed Tickets</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Date Opened</th>
-                    <th>Date Closed</th>
-                    <th>Headline</th>
-                    <th>Assigned To</th>
-                    <th>Status</th>
-                    <th>Description</th>
-                    <th>Notes</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ticket in tickets %}
-                <tr>
-                    <td data-label="ID">{{ ticket.id }}</td>
-                    <td data-label="Date Opened">{{ ticket.date_opened }}</td>
-                    <td data-label="Date Closed">{{ ticket.date_closed }}</td>
-                    <td data-label="Headline">{{ ticket.headline }}</td>
-                    <td data-label="Assigned To">{{ ticket.assigned_to }}</td>
-                    <td data-label="Status">{{ ticket.status }}</td>
-                    <td data-label="Description">{{ ticket.description }}</td>
-                    <td data-label="Notes">{{ ticket.notes }}</td>
-                    <td data-label="Actions">
-                        <form action="/reopen/{{ ticket.id }}" method="post">
-                            <button type="submit">Reopen</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <form action="/create" method="post" class="form-container">
+            <div class="form-group">
+                <label for="id">Ticket ID:</label>
+                <input type="text" id="id" name="id" value="{{ ticket_id }}" readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="headline">Headline:</label>
+                <input type="text" id="headline" name="headline" required>
+            </div>
+
+            <div class="form-group">
+                <label for="assigned_to">Assigned To:</label>
+                <input type="text" id="assigned_to" name="assigned_to" required>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select id="status" name="status" required>
+                    <option value="Open" selected>Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Closed">Closed</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notes:</label>
+                <textarea id="notes" name="notes"></textarea>
+            </div>
+
+            <button type="submit" class="btn-primary">Create Ticket</button>
+        </form>
     </main>
 </body>
 </html>
