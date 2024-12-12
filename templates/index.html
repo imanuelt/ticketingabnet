@@ -73,20 +73,8 @@
                 <tr>
                     <td>{{ ticket.id }}</td>
                     <td>{{ ticket.date_opened }}</td>
-                    <td>
-                        <input
-                            type="text"
-                            value="{{ ticket.headline }}"
-                            onchange="updateTicket('{{ ticket.id }}', 'headline', this.value)"
-                        />
-                    </td>
-                    <td>
-                        <input
-                            type="text"
-                            value="{{ ticket.assigned_to }}"
-                            onchange="updateTicket('{{ ticket.id }}', 'assigned_to', this.value)"
-                        />
-                    </td>
+                    <td>{{ ticket.headline }}</td>
+                    <td>{{ ticket.assigned_to }}</td>
                     <td>
                         <select
                             onchange="updateTicket('{{ ticket.id }}', 'status', this.value)"
@@ -97,20 +85,8 @@
                             <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
                         </select>
                     </td>
-                    <td>
-                        <input
-                            type="text"
-                            value="{{ ticket.description }}"
-                            onchange="updateTicket('{{ ticket.id }}', 'description', this.value)"
-                        />
-                    </td>
-                    <td>
-                        <input
-                            type="text"
-                            value="{{ ticket.notes }}"
-                            onchange="updateTicket('{{ ticket.id }}', 'notes', this.value)"
-                        />
-                    </td>
+                    <td>{{ ticket.description }}</td>
+                    <td>{{ ticket.notes }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
