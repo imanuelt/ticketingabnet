@@ -3,3 +3,4 @@ azure-cosmos
 pytz
 python-dotenv
 Jinja2
+gunicorn
