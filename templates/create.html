@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Ticket</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        header .nav-buttons a {
+            text-decoration: none;
+            margin: 0 10px;
+            padding: 10px 20px;
+            background-color: white;
+            color: #007bff;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        header .nav-buttons a:hover {
+            background-color: #0056b3;
+            color: white;
+        }
+
+        header .nav-buttons img {
+            width: 20px;
+            height: 20px;
+        }
+
+        main {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        main h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: none;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>ABnet Microsoft Management System</h1>
+        <div class="nav-buttons">
+            <a href="/">
+                <img src="{{ url_for('static', filename='images/home.png') }}" alt="Home">
+                Home
+            </a>
+            <a href="/create">
+                <img src="{{ url_for('static', filename='images/open_ticket.png') }}" alt="Open Ticket">
+                Open Ticket
+            </a>
+            <a href="/closed">
+                <img src="{{ url_for('static', filename='images/closed_ticket.png') }}" alt="Closed Tickets">
+                Closed Tickets
+            </a>
+        </div>
+    </header>
+    <main>
+        <h2>Create New Ticket</h2>
+        <form action="/create" method="post">
+            <label for="id">Ticket ID:</label>
+            <input type="text" id="id" name="id" value="{{ ticket_id }}" readonly>
+
+            <label for="headline">Headline:</label>
+            <input type="text" id="headline" name="headline" placeholder="Enter ticket headline" required>
+
+            <label for="assigned_to">Assigned To:</label>
+            <input type="text" id="assigned_to" name="assigned_to" placeholder="Assign to someone" required>
+
+            <label for="status">Status:</label>
+            <select id="status" name="status" required>
+                <option value="Open" selected>Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Closed">Closed</option>
+            </select>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description" rows="4" placeholder="Provide a brief description" required></textarea>
+
+            <label for="notes">Notes:</label>
+            <textarea id="notes" name="notes" rows="3" placeholder="Add any additional notes"></textarea>
+
+            <button type="submit">Create Ticket</button>
+        </form>
+    </main>
+    <footer>
+        &copy; 2024 ABnet Microsoft Management System. All rights reserved.
+    </footer>
+</body>
+</html>

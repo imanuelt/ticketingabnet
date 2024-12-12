@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Closed Tickets - ABnet Microsoft Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>ABnet Microsoft Management System</h1>
+        <div class="button-group">
+            <a href="/" class="btn">
+                <img src="{{ url_for('static', filename='images/home.png') }}" alt="Home"> Home
+            </a>
+            <a href="/create" class="btn">
+                <img src="{{ url_for('static', filename='images/open_ticket.png') }}" alt="Open Ticket"> Open Ticket
+            </a>
+            <a href="/closed" class="btn">
+                <img src="{{ url_for('static', filename='images/closed_ticket.png') }}" alt="Closed Tickets"> Closed Tickets
+            </a>
+        </div>
+    </header>
+    <main>
+        <h2>Closed Tickets</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Date Opened</th>
+                    <th>Date Closed</th>
+                    <th>Headline</th>
+                    <th>Assigned To</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Notes</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.date_opened }}</td>
+                    <td>{{ ticket.date_closed }}</td>
+                    <td>{{ ticket.headline }}</td>
+                    <td>{{ ticket.assigned_to }}</td>
+                    <td>{{ ticket.status }}</td>
+                    <td>{{ ticket.description }}</td>
+                    <td>{{ ticket.notes }}</td>
+                    <td>
+                        <form action="/reopen/{{ ticket.id }}" method="post">
+                            <button type="submit">Reopen</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+    <footer>
+        <p>&copy; 2024 ABnet Management System. All rights reserved.</p>
+    </footer>
+</body>
+</html>
