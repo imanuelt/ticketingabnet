@@ -106,7 +106,7 @@ table th {
 }
 
 textarea, select {
-    width: 100%;
+    width: 120%;
     box-sizing: border-box;
     padding: 5px;
     font-size: 14px;
@@ -118,7 +118,7 @@ textarea, select {
 /* Make Description column wider */
 table td:nth-child(6),
 table th:nth-child(6) {
-    width: 110%; /* Make the description column 50% wider */
+    width: 40%; /* Make the description column 50% wider */
 }
 
 /* Responsive Design */
