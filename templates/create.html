@@ -1,55 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Ticket</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <header>
-        <h1>Create New Ticket</h1>
-        <div class="button-group">
-            <a href="/" class="btn">
-                <img src="{{ url_for('static', filename='images/home.png') }}" alt="Home"> Home
-            </a>
-            <a href="/closed" class="btn">
-                <img src="{{ url_for('static', filename='images/closed_ticket.png') }}" alt="Closed Tickets"> Closed Tickets
-            </a>
-        </div>
-    </header>
-    <main>
-        <form action="/create" method="post" class="form-container">
-            <div class="form-group">
-                <label for="id">Ticket ID:</label>
-                <input type="text" id="id" name="id" value="{{ ticket_id }}" readonly>
-            </div>
-            <div class="form-group">
-                <label for="headline">Headline:</label>
-                <input type="text" id="headline" name="headline" placeholder="Enter ticket headline..." required>
-            </div>
-            <div class="form-group">
-                <label for="assigned_to">Assigned To:</label>
-                <input type="text" id="assigned_to" name="assigned_to" placeholder="Assigned person or team..." required>
-            </div>
-            <div class="form-group">
-                <label for="status">Status:</label>
-                <select id="status" name="status" required>
-                    <option value="Open" selected>Open</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Closed">Closed</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="description">Description:</label>
-                <textarea id="description" name="description" placeholder="Describe the issue or task..." required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="notes">Notes:</label>
-                <textarea id="notes" name="notes" placeholder="Add any additional notes..."></textarea>
-            </div>
-            <button type="submit" class="btn-primary">Create Ticket</button>
-        </form>
-    </main>
-</body>
-</html>
+<form action="/create" method="post" class="form-container">
+    <div class="form-group">
+        <label for="id">Ticket ID:</label>
+        <input type="text" id="id" name="id" value="{{ ticket_id }}" readonly>
+    </div>
+    <div class="form-group">
+        <label for="headline">Headline:</label>
+        <input type="text" id="headline" name="headline" required>
+    </div>
+    <div class="form-group">
+        <label for="assigned_to">Assigned To:</label>
+        <input type="text" id="assigned_to" name="assigned_to" required>
+    </div>
+    <div class="form-group">
+        <label for="status">Status:</label>
+        <select id="status" name="status" required>
+            <option value="Open" selected>Open</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Closed">Closed</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" required></textarea>
+    </div>
+    <div class="form-group">
+        <label for="notes">Notes:</label>
+        <textarea id="notes" name="notes"></textarea>
+    </div>
+    <button type="submit">Create Ticket</button>
+</form>

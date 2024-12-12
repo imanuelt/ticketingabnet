@@ -1,115 +1,54 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABnet Microsoft Management System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script>
-        function updateTicket(ticketId, field, value) {
-            fetch('/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ id: ticketId, field: field, value: value }),
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("Ticket updated successfully!");
-                    location.reload();
-                } else {
-                    alert(`Failed to update ticket: ${data.error}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while updating the ticket.');
-            });
-        }
-    </script>
-</head>
-<body>
-    <header>
-        <h1>ABnet Microsoft Management System</h1>
-        <div class="button-group">
-            <a href="/" class="btn">
-                <img src="{{ url_for('static', filename='images/home.png') }}" alt="Home"> Home
-            </a>
-            <a href="/create" class="btn">
-                <img src="{{ url_for('static', filename='images/open_ticket.png') }}" alt="Open Ticket"> Open Ticket
-            </a>
-            <a href="/closed" class="btn">
-                <img src="{{ url_for('static', filename='images/closed_ticket.png') }}" alt="Closed Tickets"> Closed Tickets
-            </a>
-        </div>
-    </header>
-    <main>
-        <div class="ticket-stats">
-            <div class="stat-box">
-                <h2>Open Tickets</h2>
-                <p>{{ open_count }}</p>
-            </div>
-            <div class="stat-box">
-                <h2>In Progress Tickets</h2>
-                <p>{{ in_progress_count }}</p>
-            </div>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Date Opened</th>
-                    <th>Headline</th>
-                    <th>Assigned To</th>
-                    <th>Status</th>
-                    <th>Description</th>
-                    <th>Notes</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ticket in tickets|sort(attribute='id', reverse=True) %}
-                <tr>
-                    <td>{{ ticket.id }}</td>
-                    <td>{{ ticket.date_opened }}</td>
-                    <td>
-                        <textarea
-                            onchange="updateTicket('{{ ticket.id }}', 'headline', this.value)"
-                        >{{ ticket.headline }}</textarea>
-                    </td>
-                    <td>
-                        <textarea
-                            onchange="updateTicket('{{ ticket.id }}', 'assigned_to', this.value)"
-                        >{{ ticket.assigned_to }}</textarea>
-                    </td>
-                    <td>
-                        <select
-                            onchange="updateTicket('{{ ticket.id }}', 'status', this.value)"
-                            class="status-{{ ticket.status | lower }}"
-                        >
-                            <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
-                            <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-                            <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
-                        </select>
-                    </td>
-                    <td>
-                        <textarea
-                            onchange="updateTicket('{{ ticket.id }}', 'description', this.value)"
-                        >{{ ticket.description }}</textarea>
-                    </td>
-                    <td>
-                        <textarea
-                            onchange="updateTicket('{{ ticket.id }}', 'notes', this.value)"
-                        >{{ ticket.notes }}</textarea>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </main>
-    <footer>
-        <p>&copy; 2024 ABnet Management System. All rights reserved.</p>
-    </footer>
-</body>
-</html>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Date Opened</th>
+            <th>Headline</th>
+            <th>Assigned To</th>
+            <th>Status</th>
+            <th>Description</th>
+            <th>Notes</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ticket in tickets %}
+        <tr>
+            <td data-label="ID">{{ ticket.id }}</td>
+            <td data-label="Date Opened">{{ ticket.date_opened }}</td>
+            <td data-label="Headline">
+                <input
+                    type="text"
+                    value="{{ ticket.headline }}"
+                    onchange="updateTicket('{{ ticket.id }}', 'headline', this.value)"
+                />
+            </td>
+            <td data-label="Assigned To">
+                <input
+                    type="text"
+                    value="{{ ticket.assigned_to }}"
+                    onchange="updateTicket('{{ ticket.id }}', 'assigned_to', this.value)"
+                />
+            </td>
+            <td data-label="Status">
+                <select
+                    onchange="updateTicket('{{ ticket.id }}', 'status', this.value)"
+                >
+                    <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
+                    <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
+                </select>
+            </td>
+            <td data-label="Description">
+                <textarea
+                    onchange="updateTicket('{{ ticket.id }}', 'description', this.value)"
+                >{{ ticket.description }}</textarea>
+            </td>
+            <td data-label="Notes">
+                <textarea
+                    onchange="updateTicket('{{ ticket.id }}', 'notes', this.value)"
+                >{{ ticket.notes }}</textarea>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
