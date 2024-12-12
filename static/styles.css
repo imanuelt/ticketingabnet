@@ -81,7 +81,7 @@ main {
 /* Table Styling */
 table {
     width: 100%; /* Make the table occupy the full width of the container */
-    max-width: 1200px; /* Add a maximum width to avoid stretching too much on larger screens */
+    max-width: 1400px; /* Add a maximum width to avoid stretching too much on larger screens */
     margin: 0 auto; /* Center the table on the page */
     border-collapse: collapse;
     margin-top: 20px;
@@ -121,7 +121,12 @@ textarea, select, input[type="text"] {
 /* Make Description column wider */
 table td:nth-child(6),
 table th:nth-child(6) {
-    width: 50%; /* Make the Description column half the table width */
+    width: 30%; /* Make the Description column half the table width */
+}
+/* Make Headline column wider */
+table td:nth-child(3),
+table th:nth-child(3) {
+    width: 20%; /* Make the Description column half the table width */
 }
 
 /* Adjust height of rows */
