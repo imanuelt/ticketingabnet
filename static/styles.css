@@ -80,7 +80,8 @@ main {
 
 /* Table Styling */
 table {
-    width: 100%;
+    width: 120%; /* Adjust this to control the width */
+    margin: 0 auto; /* Center the table on the page */
     border-collapse: collapse;
     margin-top: 20px;
     background-color: white;
