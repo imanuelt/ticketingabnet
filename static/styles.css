@@ -97,6 +97,7 @@ table th, table td {
     padding: 10px;
     border: 1px solid #ddd;
     text-align: left;
+    height: 80%; /* Adjust the height to 80% of its current value */
 }
 
 table th {
@@ -111,6 +112,12 @@ textarea, select {
     border: 1px solid #ddd;
     border-radius: 3px;
     resize: none;
+}
+
+/* Make Description column wider */
+table td:nth-child(6),
+table th:nth-child(6) {
+    width: 150%; /* Make the description column 50% wider */
 }
 
 /* Responsive Design */
