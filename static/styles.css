@@ -112,7 +112,14 @@ select {
 }
 
 textarea {
-    resize: vertical;
+    width: 100%;
+    height: 50px; /* Adjust height as needed */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    resize: none; /* Prevent resizing for consistent layout */
+    font-size: 14px;
+    font-family: Arial, sans-serif;
 }
 
 button.btn-primary {

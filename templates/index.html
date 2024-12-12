@@ -73,8 +73,16 @@
                 <tr>
                     <td>{{ ticket.id }}</td>
                     <td>{{ ticket.date_opened }}</td>
-                    <td>{{ ticket.headline }}</td>
-                    <td>{{ ticket.assigned_to }}</td>
+                    <td>
+                        <textarea
+                            onchange="updateTicket('{{ ticket.id }}', 'headline', this.value)"
+                        >{{ ticket.headline }}</textarea>
+                    </td>
+                    <td>
+                        <textarea
+                            onchange="updateTicket('{{ ticket.id }}', 'assigned_to', this.value)"
+                        >{{ ticket.assigned_to }}</textarea>
+                    </td>
                     <td>
                         <select
                             onchange="updateTicket('{{ ticket.id }}', 'status', this.value)"
@@ -85,8 +93,16 @@
                             <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
                         </select>
                     </td>
-                    <td>{{ ticket.description }}</td>
-                    <td>{{ ticket.notes }}</td>
+                    <td>
+                        <textarea
+                            onchange="updateTicket('{{ ticket.id }}', 'description', this.value)"
+                        >{{ ticket.description }}</textarea>
+                    </td>
+                    <td>
+                        <textarea
+                            onchange="updateTicket('{{ ticket.id }}', 'notes', this.value)"
+                        >{{ ticket.notes }}</textarea>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
