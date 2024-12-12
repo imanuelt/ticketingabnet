@@ -80,8 +80,8 @@ main {
 
 /* Table Styling */
 table {
-    width: 120%; /* Set the table width to 120% of its container */
-    margin: 0 auto; /* Center the table on the page */
+    width: 90%; /* Adjust this to control the width (e.g., 90% of the page) */
+    margin: 0 auto; /* This centers the table on the page */
     border-collapse: collapse;
     margin-top: 20px;
     background-color: white;
@@ -106,7 +106,7 @@ table th {
 
 /* Ensure inputs fit within their cells */
 textarea, select {
-    width: 98%; /* Ensure inputs stay inside the column */
+    width: 98%; /* Adjust to fit input fields inside the column */
     box-sizing: border-box;
     padding: 5px;
     font-size: 14px;
@@ -115,10 +115,10 @@ textarea, select {
     resize: none;
 }
 
-/* Make Description column wider */
+/* Adjust column widths as needed */
 table td:nth-child(6),
 table th:nth-child(6) {
-    width: 50%; /* Increase the width of the description column */
+    width: 40%; /* Adjust column width as needed */
 }
 
 /* Responsive Design */
