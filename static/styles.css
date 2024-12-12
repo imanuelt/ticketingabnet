@@ -121,17 +121,69 @@ textarea, select, input[type="text"] {
 /* Make Description column wider */
 table td:nth-child(6),
 table th:nth-child(6) {
-    width: 30%; /* Make the Description column half the table width */
+    width: 30%; /* Make the Description column 30% of the table width */
 }
+
 /* Make Headline column wider */
 table td:nth-child(3),
 table th:nth-child(3) {
-    width: 20%; /* Make the Description column half the table width */
+    width: 20%; /* Adjust headline column width */
 }
 
 /* Adjust height of rows */
 table th, table td {
-    height: 60px; /* Increase or decrease this for row height */
+    height: 60px; /* Adjust row height */
+}
+
+/* Create Form Styling */
+.create-form {
+    max-width: 600px; /* Restrict form width */
+    margin: 0 auto; /* Center the form */
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.create-form .form-group {
+    margin-bottom: 15px;
+}
+
+.create-form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.create-form input[type="text"],
+.create-form select,
+.create-form textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    margin-top: 5px;
+}
+
+.create-form textarea {
+    resize: vertical;
+}
+
+.create-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.create-form button:hover {
+    background-color: #0056b3;
 }
 
 /* Responsive Design */
@@ -149,5 +201,10 @@ table th, table td {
         content: attr(data-label);
         font-weight: bold;
         display: block;
+    }
+
+    .create-form {
+        width: 100%;
+        padding: 10px;
     }
 }
