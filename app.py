@@ -2,7 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 from azure.cosmos import CosmosClient
 from datetime import datetime
 import pytz
-
+import os
+COSMOS_DB_KEY = os.getenv("COSMOS_DB_KEY")
 app = Flask(__name__)
 
 # Israel timezone
