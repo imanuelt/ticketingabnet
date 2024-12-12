@@ -80,7 +80,7 @@ main {
 
 /* Table Styling */
 table {
-    width: 120%; /* Adjust this to control the width */
+    width: 100%; /* Adjust this to control the width */
     margin: 0 auto; /* Center the table on the page */
     border-collapse: collapse;
     margin-top: 20px;
@@ -98,7 +98,7 @@ table th, table td {
     padding: 10px;
     border: 1px solid #ddd;
     text-align: left;
-    height: 80%; /* Adjust the height to 80% of its current value */
+    height: 100%; /* Adjust the height to 80% of its current value */
 }
 
 table th {
@@ -118,7 +118,7 @@ textarea, select {
 /* Make Description column wider */
 table td:nth-child(6),
 table th:nth-child(6) {
-    width: 120%; /* Make the description column 50% wider */
+    width: 110%; /* Make the description column 50% wider */
 }
 
 /* Responsive Design */
