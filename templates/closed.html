@@ -40,15 +40,15 @@
             <tbody>
                 {% for ticket in tickets %}
                 <tr>
-                    <td>{{ ticket.id }}</td>
-                    <td>{{ ticket.date_opened }}</td>
-                    <td>{{ ticket.date_closed }}</td>
-                    <td>{{ ticket.headline }}</td>
-                    <td>{{ ticket.assigned_to }}</td>
-                    <td>{{ ticket.status }}</td>
-                    <td>{{ ticket.description }}</td>
-                    <td>{{ ticket.notes }}</td>
-                    <td>
+                    <td data-label="ID">{{ ticket.id }}</td>
+                    <td data-label="Date Opened">{{ ticket.date_opened }}</td>
+                    <td data-label="Date Closed">{{ ticket.date_closed }}</td>
+                    <td data-label="Headline">{{ ticket.headline }}</td>
+                    <td data-label="Assigned To">{{ ticket.assigned_to }}</td>
+                    <td data-label="Status">{{ ticket.status }}</td>
+                    <td data-label="Description">{{ ticket.description }}</td>
+                    <td data-label="Notes">{{ ticket.notes }}</td>
+                    <td data-label="Actions">
                         <form action="/reopen/{{ ticket.id }}" method="post">
                             <button type="submit">Reopen</button>
                         </form>
@@ -58,8 +58,5 @@
             </tbody>
         </table>
     </main>
-    <footer>
-        <p>&copy; 2024 ABnet Management System. All rights reserved.</p>
-    </footer>
 </body>
 </html>

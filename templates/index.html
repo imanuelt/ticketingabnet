@@ -71,15 +71,23 @@
             <tbody>
                 {% for ticket in tickets %}
                 <tr>
-                    <td>{{ ticket.id }}</td>
-                    <td>{{ ticket.date_opened }}</td>
-                    <td contenteditable="true" onblur="updateTicket('{{ ticket.id }}', 'headline', this.innerText)">
-                        {{ ticket.headline }}
+                    <td data-label="ID">{{ ticket.id }}</td>
+                    <td data-label="Date Opened">{{ ticket.date_opened }}</td>
+                    <td data-label="Headline">
+                        <input
+                            type="text"
+                            value="{{ ticket.headline }}"
+                            onchange="updateTicket('{{ ticket.id }}', 'headline', this.value)"
+                        />
                     </td>
-                    <td contenteditable="true" onblur="updateTicket('{{ ticket.id }}', 'assigned_to', this.innerText)">
-                        {{ ticket.assigned_to }}
+                    <td data-label="Assigned To">
+                        <input
+                            type="text"
+                            value="{{ ticket.assigned_to }}"
+                            onchange="updateTicket('{{ ticket.id }}', 'assigned_to', this.value)"
+                        />
                     </td>
-                    <td>
+                    <td data-label="Status">
                         <select
                             onchange="updateTicket('{{ ticket.id }}', 'status', this.value)"
                             class="status-{{ ticket.status | lower }}"
@@ -89,11 +97,19 @@
                             <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
                         </select>
                     </td>
-                    <td contenteditable="true" onblur="updateTicket('{{ ticket.id }}', 'description', this.innerText)">
-                        {{ ticket.description }}
+                    <td data-label="Description">
+                        <input
+                            type="text"
+                            value="{{ ticket.description }}"
+                            onchange="updateTicket('{{ ticket.id }}', 'description', this.value)"
+                        />
                     </td>
-                    <td contenteditable="true" onblur="updateTicket('{{ ticket.id }}', 'notes', this.innerText)">
-                        {{ ticket.notes }}
+                    <td data-label="Notes">
+                        <input
+                            type="text"
+                            value="{{ ticket.notes }}"
+                            onchange="updateTicket('{{ ticket.id }}', 'notes', this.value)"
+                        />
                     </td>
                 </tr>
                 {% endfor %}
