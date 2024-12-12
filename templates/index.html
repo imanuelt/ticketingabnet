@@ -18,6 +18,7 @@
             .then(data => {
                 if (data.success) {
                     alert("Ticket updated successfully!");
+                    location.reload();
                 } else {
                     alert(`Failed to update ticket: ${data.error}`);
                 }
@@ -68,38 +69,28 @@
                 </tr>
             </thead>
             <tbody>
-                {% for ticket in tickets %}
+                {% for ticket in tickets|sort(attribute="id", reverse=True) %}
                 <tr>
                     <td>{{ ticket.id }}</td>
                     <td>{{ ticket.date_opened }}</td>
                     <td>
-                        <textarea
-                            onchange="updateTicket('{{ ticket.id }}', 'headline', this.value)"
-                        >{{ ticket.headline }}</textarea>
+                        <textarea onchange="updateTicket('{{ ticket.id }}', 'headline', this.value)">{{ ticket.headline }}</textarea>
                     </td>
                     <td>
-                        <textarea
-                            onchange="updateTicket('{{ ticket.id }}', 'assigned_to', this.value)"
-                        >{{ ticket.assigned_to }}</textarea>
+                        <textarea onchange="updateTicket('{{ ticket.id }}', 'assigned_to', this.value)">{{ ticket.assigned_to }}</textarea>
                     </td>
                     <td>
-                        <select
-                            onchange="updateTicket('{{ ticket.id }}', 'status', this.value)"
-                        >
+                        <select onchange="updateTicket('{{ ticket.id }}', 'status', this.value)">
                             <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
                             <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
                             <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
                         </select>
                     </td>
                     <td>
-                        <textarea
-                            onchange="updateTicket('{{ ticket.id }}', 'description', this.value)"
-                        >{{ ticket.description }}</textarea>
+                        <textarea onchange="updateTicket('{{ ticket.id }}', 'description', this.value)">{{ ticket.description }}</textarea>
                     </td>
                     <td>
-                        <textarea
-                            onchange="updateTicket('{{ ticket.id }}', 'notes', this.value)"
-                        >{{ ticket.notes }}</textarea>
+                        <textarea onchange="updateTicket('{{ ticket.id }}', 'notes', this.value)">{{ ticket.notes }}</textarea>
                     </td>
                 </tr>
                 {% endfor %}
