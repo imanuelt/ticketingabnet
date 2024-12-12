@@ -69,25 +69,13 @@
                 </tr>
             </thead>
             <tbody>
-                {% for ticket in tickets %}
+                {% for ticket in tickets|sort(attribute='id', reverse=True) %}
                 <tr>
-                    <td data-label="ID">{{ ticket.id }}</td>
-                    <td data-label="Date Opened">{{ ticket.date_opened }}</td>
-                    <td data-label="Headline">
-                        <input
-                            type="text"
-                            value="{{ ticket.headline }}"
-                            onchange="updateTicket('{{ ticket.id }}', 'headline', this.value)"
-                        />
-                    </td>
-                    <td data-label="Assigned To">
-                        <input
-                            type="text"
-                            value="{{ ticket.assigned_to }}"
-                            onchange="updateTicket('{{ ticket.id }}', 'assigned_to', this.value)"
-                        />
-                    </td>
-                    <td data-label="Status">
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.date_opened }}</td>
+                    <td>{{ ticket.headline }}</td>
+                    <td>{{ ticket.assigned_to }}</td>
+                    <td>
                         <select
                             onchange="updateTicket('{{ ticket.id }}', 'status', this.value)"
                             class="status-{{ ticket.status | lower }}"
@@ -97,20 +85,8 @@
                             <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
                         </select>
                     </td>
-                    <td data-label="Description">
-                        <input
-                            type="text"
-                            value="{{ ticket.description }}"
-                            onchange="updateTicket('{{ ticket.id }}', 'description', this.value)"
-                        />
-                    </td>
-                    <td data-label="Notes">
-                        <input
-                            type="text"
-                            value="{{ ticket.notes }}"
-                            onchange="updateTicket('{{ ticket.id }}', 'notes', this.value)"
-                        />
-                    </td>
+                    <td>{{ ticket.description }}</td>
+                    <td>{{ ticket.notes }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
