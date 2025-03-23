@@ -65,6 +65,36 @@ def create_ticket():
     return render_template('create.html', ticket_id=next_ticket_id)
 
 
+@app.route('/submit_ticket', methods=['GET', 'POST'])
+def submit_ticket():
+    if request.method == 'POST':
+        data = request.form
+        date_opened = datetime.now(israel_tz).strftime('%d/%m/%Y')
+        tickets = list(container.read_all_items())
+        next_ticket_id = max([int(t['id']) for t in tickets], default=0) + 1
+
+        new_ticket = {
+            "id": str(next_ticket_id),
+            "headline": data['issue_headline'],
+            "assigned_to": "Imanuel Tzipris",  # Default assignment or logic-based
+            "status": "Open",
+            "description": f"Customer Tenant Name: {data['tenant_name']}\n"
+                            f"Domain: {data['tenant_domain']}\n"
+                            f"Contact: {data['contact_name']} {data['contact_family']}\n"
+                            f"Phone: {data['contact_phone']}\n"
+                            f"Email: {data['contact_email']}\n"
+                            f"Service: {data['service']}\n\n"
+                            f"Description: {data['issue_description']}",
+            "notes": "Submitted via customer form",
+            "date_opened": date_opened,
+            "date_closed": None
+        }
+        container.create_item(new_ticket)
+        return render_template("submit_ticket.html", ticket_id=next_ticket_id)
+
+    return render_template("submit_ticket.html")
+
+
 @app.route('/closed')
 def closed():
     tickets = list(container.read_all_items())
@@ -79,7 +109,7 @@ def reopen_ticket(ticket_id):
         ticket_list = list(container.query_items(query=query, enable_cross_partition_query=True))
         if not ticket_list:
             raise Exception(f"Ticket with ID {ticket_id} not found.")
-        
+
         ticket = ticket_list[0]
         ticket['status'] = 'Open'
         ticket['date_closed'] = None  # Remove date closed when reopened
@@ -102,7 +132,7 @@ def update_ticket():
         ticket_list = list(container.query_items(query=query, enable_cross_partition_query=True))
         if not ticket_list:
             raise Exception(f"Ticket with ID {ticket_id} not found.")
-        
+
         ticket = ticket_list[0]
         ticket[field] = value
 
