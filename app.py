@@ -75,16 +75,16 @@ def submit_ticket():
 
         new_ticket = {
             "id": str(next_ticket_id),
-            "headline": data['issue_headline'],
-            "assigned_to": "Imanuel Tzipris",  # Default assignment or logic-based
+            "headline": data['headline'],  # ✅ FIXED
+            "assigned_to": "Imanuel Tzipris",
             "status": "Open",
             "description": f"Customer Tenant Name: {data['tenant_name']}\n"
-                            f"Domain: {data['tenant_domain']}\n"
-                            f"Contact: {data['contact_name']} {data['contact_family']}\n"
-                            f"Phone: {data['contact_phone']}\n"
-                            f"Email: {data['contact_email']}\n"
-                            f"Service: {data['service']}\n\n"
-                            f"Description: {data['issue_description']}",
+                           f"Domain: {data['tenant_domain']}\n"
+                           f"Contact: {data['contact_name']} {data['contact_family']}\n"
+                           f"Phone: {data['phone']}\n"
+                           f"Email: {data['email']}\n"
+                           f"Service: {data['service']}\n\n"
+                           f"Description: {data['description']}",  # ✅ FIXED
             "notes": "Submitted via customer form",
             "date_opened": date_opened,
             "date_closed": None
