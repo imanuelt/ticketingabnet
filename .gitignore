@@ -1,1 +1,8 @@
 .env
+.azure/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+infra/terraform.tfvars
+crash.log

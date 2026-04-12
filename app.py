@@ -4,18 +4,27 @@ from datetime import datetime
 from dotenv import load_dotenv
 import pytz
 import os
+
 load_dotenv()
 
-COSMOS_DB_KEY = os.getenv("COSMOS_DB_KEY")
 app = Flask(__name__)
 
 # Israel timezone
 israel_tz = pytz.timezone('Asia/Jerusalem')
 
+
+def get_required_env(name):
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"Missing required environment variable: {name}")
+    return value
+
+
 # Cosmos DB configuration
-COSMOS_DB_URI = "https://ticketingabnet.documents.azure.com:443/"
-DATABASE_NAME = "ticketingdb"
-CONTAINER_NAME = "ticketingdbcont"
+COSMOS_DB_URI = get_required_env("COSMOS_DB_URI")
+COSMOS_DB_KEY = get_required_env("COSMOS_DB_KEY")
+DATABASE_NAME = os.getenv("COSMOS_DB_DATABASE", "ticketingdb")
+CONTAINER_NAME = os.getenv("COSMOS_DB_CONTAINER", "ticketingdbcont")
 
 client = CosmosClient(COSMOS_DB_URI, COSMOS_DB_KEY)
 database = client.get_database_client(DATABASE_NAME)
