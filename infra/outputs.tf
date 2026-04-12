@@ -22,6 +22,18 @@ output "github_actions_subscription_id" {
   value = var.subscription_id
 }
 
+output "app_auth_client_id" {
+  value = azuread_application.web_auth.client_id
+}
+
+output "app_auth_enterprise_app_object_id" {
+  value = azuread_service_principal.web_auth.object_id
+}
+
+output "required_app_role" {
+  value = var.required_app_role
+}
+
 output "cosmos_db_uri" {
   value = azurerm_cosmosdb_account.this.endpoint
 }

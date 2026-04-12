@@ -13,6 +13,8 @@ locals {
   cosmos_account_name = substr("${var.cosmos_account_name}${random_string.suffix.result}", 0, 44)
   github_subject      = "repo:${var.github_owner}/${var.github_repo}:environment:${var.github_environment}"
   deployment_app_name = "gh-${var.project_name}-deploy"
+  auth_app_name       = "Mono's Tasks Management"
+  auth_callback_url   = "https://${var.web_app_name}.azurewebsites.net/.auth/login/aad/callback"
 }
 
 resource "azurerm_resource_group" "this" {
@@ -103,8 +105,32 @@ resource "azurerm_linux_web_app" "this" {
     type = "SystemAssigned"
   }
 
+  auth_settings_v2 {
+    auth_enabled           = true
+    default_provider       = "azureactivedirectory"
+    excluded_paths         = ["/health"]
+    require_authentication = true
+    require_https          = true
+    unauthenticated_action = "RedirectToLoginPage"
+
+    active_directory_v2 {
+      client_id                  = azuread_application.web_auth.client_id
+      client_secret_setting_name = "MICROSOFT_PROVIDER_AUTHENTICATION_SECRET"
+      tenant_auth_endpoint       = "https://login.microsoftonline.com/${var.tenant_id}/v2.0"
+      allowed_applications       = [azuread_application.web_auth.client_id]
+      allowed_audiences = [
+        azuread_application.web_auth.client_id,
+        "api://${azuread_application.web_auth.client_id}",
+      ]
+    }
+
+    login {
+      token_store_enabled = true
+    }
+  }
+
   site_config {
-    always_on        = false
+    always_on = false
 
     application_stack {
       python_version = "3.12"
@@ -112,16 +138,17 @@ resource "azurerm_linux_web_app" "this" {
   }
 
   app_settings = {
-    APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.this.connection_string
-    ALLOWED_TENANT_ID                     = var.tenant_id
-    AUTH_REQUIRED                         = "true"
-    COSMOS_DB_CONTAINER                   = azurerm_cosmosdb_sql_container.this.name
-    COSMOS_DB_DATABASE                    = azurerm_cosmosdb_sql_database.this.name
-    COSMOS_DB_KEY                         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.cosmos_key.versionless_id})"
-    COSMOS_DB_URI                         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.cosmos_uri.versionless_id})"
-    ENABLE_ORYX_BUILD                     = "true"
-    REQUIRED_APP_ROLE                     = var.required_app_role
-    SCM_DO_BUILD_DURING_DEPLOYMENT        = "true"
+    APPLICATIONINSIGHTS_CONNECTION_STRING    = azurerm_application_insights.this.connection_string
+    ALLOWED_TENANT_ID                        = var.tenant_id
+    AUTH_REQUIRED                            = "true"
+    COSMOS_DB_CONTAINER                      = azurerm_cosmosdb_sql_container.this.name
+    COSMOS_DB_DATABASE                       = azurerm_cosmosdb_sql_database.this.name
+    COSMOS_DB_KEY                            = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.cosmos_key.versionless_id})"
+    COSMOS_DB_URI                            = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.cosmos_uri.versionless_id})"
+    ENABLE_ORYX_BUILD                        = "true"
+    MICROSOFT_PROVIDER_AUTHENTICATION_SECRET = azuread_application_password.web_auth.value
+    REQUIRED_APP_ROLE                        = var.required_app_role
+    SCM_DO_BUILD_DURING_DEPLOYMENT           = "true"
   }
 }
 
@@ -153,6 +180,51 @@ resource "azurerm_key_vault_access_policy" "current_user" {
 
 resource "azuread_application" "github_deploy" {
   display_name = local.deployment_app_name
+}
+
+resource "random_uuid" "task_user_role_id" {}
+
+resource "azuread_application" "web_auth" {
+  display_name     = local.auth_app_name
+  sign_in_audience = "AzureADMyOrg"
+
+  web {
+    homepage_url  = "https://${var.web_app_name}.azurewebsites.net"
+    redirect_uris = [local.auth_callback_url]
+
+    implicit_grant {
+      access_token_issuance_enabled = false
+      id_token_issuance_enabled     = true
+    }
+  }
+
+  app_role {
+    allowed_member_types = ["User"]
+    description          = "Grants access to Mono's Tasks Management."
+    display_name         = var.required_app_role
+    enabled              = true
+    id                   = random_uuid.task_user_role_id.result
+    value                = var.required_app_role
+  }
+
+  optional_claims {
+    id_token {
+      name = "roles"
+    }
+    access_token {
+      name = "roles"
+    }
+  }
+}
+
+resource "azuread_application_password" "web_auth" {
+  application_id = azuread_application.web_auth.id
+  display_name   = "app-service-easy-auth"
+}
+
+resource "azuread_service_principal" "web_auth" {
+  client_id                    = azuread_application.web_auth.client_id
+  app_role_assignment_required = true
 }
 
 resource "azuread_service_principal" "github_deploy" {

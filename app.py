@@ -207,6 +207,7 @@ def create_ticket():
 
 
 @app.route("/submit_ticket", methods=["GET", "POST"])
+@require_access
 def submit_ticket():
     if request.method == "POST":
         data = request.form
