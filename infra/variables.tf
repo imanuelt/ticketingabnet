@@ -62,6 +62,12 @@ variable "web_app_name" {
   default     = "ticketabnet"
 }
 
+variable "required_app_role" {
+  description = "Required Entra application role that grants access to the app."
+  type        = string
+  default     = "TaskUser"
+}
+
 variable "cosmos_account_name" {
   description = "Globally unique Azure Cosmos DB account name prefix."
   type        = string

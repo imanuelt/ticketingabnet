@@ -10,6 +10,8 @@ This Terraform stack provisions the Azure resources required for this app:
 - Azure Key Vault for application secrets
 - Azure Entra application and federated credential for GitHub Actions OIDC deployment
 
+Application access is intended to be tenant-restricted and role-gated. The required application role is `TaskUser`.
+
 ## Required inputs
 
 Copy `terraform.tfvars.example` to `terraform.tfvars` and provide:

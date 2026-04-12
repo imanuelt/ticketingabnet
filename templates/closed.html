@@ -1,62 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Closed Tickets - ABnet Microsoft Management System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <header>
-        <h1>ABnet Microsoft Management System</h1>
-        <div class="button-group">
-            <a href="/" class="btn">
-                <img src="{{ url_for('static', filename='images/home.png') }}" alt="Home"> Home
-            </a>
-            <a href="/create" class="btn">
-                <img src="{{ url_for('static', filename='images/open_ticket.png') }}" alt="Open Ticket"> Open Ticket
-            </a>
-            <a href="/closed" class="btn">
-                <img src="{{ url_for('static', filename='images/closed_ticket.png') }}" alt="Closed Tickets"> Closed Tickets
-            </a>
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-hero glass-panel">
+    <div>
+        <p class="eyebrow">Archive</p>
+        <h2>Review closed work, reopen when needed, and keep historical context visible.</h2>
+    </div>
+</section>
+
+<section class="toolbar glass-panel">
+    <div class="toolbar-group">
+        <label class="search-shell">
+            <span>Search archive</span>
+            <input id="closedSearch" type="search" placeholder="Search by headline, owner, or notes">
+        </label>
+    </div>
+</section>
+
+<section class="archive-grid" id="closedGrid">
+    {% for ticket in tickets %}
+    <article class="archive-card glass-panel"
+        data-ticket-search="{{ (ticket.headline ~ ' ' ~ ticket.assigned_to ~ ' ' ~ ticket.description ~ ' ' ~ ticket.notes)|lower }}">
+        <div class="archive-card__header">
+            <div>
+                <p class="eyebrow">Closed #{{ ticket.id }}</p>
+                <h3>{{ ticket.headline }}</h3>
+            </div>
+            <span class="status-badge status-closed">{{ ticket.status }}</span>
         </div>
-    </header>
-    <main>
-        <h2>Closed Tickets</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Date Opened</th>
-                    <th>Date Closed</th>
-                    <th>Headline</th>
-                    <th>Assigned To</th>
-                    <th>Status</th>
-                    <th>Description</th>
-                    <th>Notes</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ticket in tickets %}
-                <tr>
-                    <td data-label="ID">{{ ticket.id }}</td>
-                    <td data-label="Date Opened">{{ ticket.date_opened }}</td>
-                    <td data-label="Date Closed">{{ ticket.date_closed }}</td>
-                    <td data-label="Headline">{{ ticket.headline }}</td>
-                    <td data-label="Assigned To">{{ ticket.assigned_to }}</td>
-                    <td data-label="Status">{{ ticket.status }}</td>
-                    <td data-label="Description">{{ ticket.description }}</td>
-                    <td data-label="Notes">{{ ticket.notes }}</td>
-                    <td data-label="Actions">
-                        <form action="/reopen/{{ ticket.id }}" method="post">
-                            <button type="submit">Reopen</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </main>
-</body>
-</html>
+
+        <dl class="archive-meta">
+            <div>
+                <dt>Opened</dt>
+                <dd>{{ ticket.date_opened }}</dd>
+            </div>
+            <div>
+                <dt>Closed</dt>
+                <dd>{{ ticket.date_closed }}</dd>
+            </div>
+            <div>
+                <dt>Assigned</dt>
+                <dd>{{ ticket.assigned_to }}</dd>
+            </div>
+        </dl>
+
+        <div class="preview-block">
+            <span>Description</span>
+            <p>{{ ticket.description }}</p>
+        </div>
+
+        <div class="preview-block">
+            <span>Notes</span>
+            <p>{{ ticket.notes or "No additional notes." }}</p>
+        </div>
+
+        <form action="{{ url_for('reopen_ticket', ticket_id=ticket.id) }}" method="post" data-reopen-form>
+            <button type="submit" class="ghost-button accent-button">Reopen ticket</button>
+        </form>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

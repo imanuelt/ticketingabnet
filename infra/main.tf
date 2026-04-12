@@ -113,11 +113,14 @@ resource "azurerm_linux_web_app" "this" {
 
   app_settings = {
     APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.this.connection_string
+    ALLOWED_TENANT_ID                     = var.tenant_id
+    AUTH_REQUIRED                         = "true"
     COSMOS_DB_CONTAINER                   = azurerm_cosmosdb_sql_container.this.name
     COSMOS_DB_DATABASE                    = azurerm_cosmosdb_sql_database.this.name
     COSMOS_DB_KEY                         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.cosmos_key.versionless_id})"
     COSMOS_DB_URI                         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.cosmos_uri.versionless_id})"
     ENABLE_ORYX_BUILD                     = "true"
+    REQUIRED_APP_ROLE                     = var.required_app_role
     SCM_DO_BUILD_DURING_DEPLOYMENT        = "true"
   }
 }

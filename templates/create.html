@@ -1,55 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Ticket</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-</head>
-<body>
-    <header>
-        <h1>Create New Ticket</h1>
-        <div class="button-group">
-            <a href="/" class="btn">
-                <img src="{{ url_for('static', filename='images/home.png') }}" alt="Home"> Home
-            </a>
-            <a href="/closed" class="btn">
-                <img src="{{ url_for('static', filename='images/closed_ticket.png') }}" alt="Closed Tickets"> Closed Tickets
-            </a>
-        </div>
-    </header>
-    <main>
-        <form action="/create" method="post" class="form-container">
-            <div class="form-group">
-                <label for="id">Ticket ID:</label>
-                <input type="text" id="id" name="id" value="{{ ticket_id }}" readonly>
-            </div>
-            <div class="form-group">
-                <label for="headline">Headline:</label>
-                <textarea id="headline" name="headline" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="assigned_to">Assigned To:</label>
-                <textarea id="assigned_to" name="assigned_to" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="status">Status:</label>
+{% extends "base.html" %}
+
+{% block content %}
+<section class="page-hero glass-panel">
+    <div>
+        <p class="eyebrow">New work intake</p>
+        <h2>Launch a ticket with enough clarity that the team can move immediately.</h2>
+    </div>
+    <div class="inline-pill">Ticket #{{ ticket_id }}</div>
+</section>
+
+<section class="composer-layout">
+    <form action="{{ url_for('create_ticket') }}" method="post" class="glass-panel compose-form" id="createTicketForm">
+        <input type="hidden" id="id" name="id" value="{{ ticket_id }}">
+
+        <label class="field-shell">
+            <span>Headline</span>
+            <input id="headline" name="headline" type="text" required placeholder="Example: Rebuild shared mailbox permissions">
+        </label>
+
+        <div class="field-row">
+            <label class="field-shell">
+                <span>Assigned to</span>
+                <input id="assigned_to" name="assigned_to" type="text" required placeholder="Owner name">
+            </label>
+
+            <label class="field-shell">
+                <span>Status</span>
                 <select id="status" name="status" required>
                     <option value="Open" selected>Open</option>
                     <option value="In Progress">In Progress</option>
                     <option value="Closed">Closed</option>
                 </select>
+            </label>
+        </div>
+
+        <label class="field-shell">
+            <span>Description</span>
+            <textarea id="description" name="description" data-autosize required placeholder="Summarize the task, blockers, and target outcome."></textarea>
+        </label>
+
+        <label class="field-shell">
+            <span>Notes</span>
+            <textarea id="notes" name="notes" data-autosize placeholder="Optional context, dependencies, or next steps."></textarea>
+        </label>
+
+        <button type="submit" class="primary-button">Create ticket</button>
+    </form>
+
+    <aside class="glass-panel preview-panel" id="ticketPreview">
+        <p class="eyebrow">Live preview</p>
+        <div class="preview-card">
+            <div class="preview-card__header">
+                <span class="inline-pill">Ticket #{{ ticket_id }}</span>
+                <span class="status-badge status-open" data-preview="status">Open</span>
             </div>
-            <div class="form-group">
-                <label for="description">Description:</label>
-                <textarea id="description" name="description" required></textarea>
+            <h3 data-preview="headline">Your new task headline</h3>
+            <dl class="preview-meta">
+                <div>
+                    <dt>Assigned</dt>
+                    <dd data-preview="assigned_to">Unassigned</dd>
+                </div>
+                <div>
+                    <dt>Opened</dt>
+                    <dd>Today</dd>
+                </div>
+            </dl>
+            <div class="preview-block">
+                <span>Description</span>
+                <p data-preview="description">Write a sharp description and it appears here instantly.</p>
             </div>
-            <div class="form-group">
-                <label for="notes">Notes:</label>
-                <textarea id="notes" name="notes"></textarea>
+            <div class="preview-block">
+                <span>Notes</span>
+                <p data-preview="notes">Optional notes show up here.</p>
             </div>
-            <button type="submit" class="btn-primary">Create Ticket</button>
-        </form>
-    </main>
-</body>
-</html>
+        </div>
+    </aside>
+</section>
+{% endblock %}

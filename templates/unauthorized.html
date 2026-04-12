@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="unauthorized-panel glass-panel">
+    <p class="eyebrow">Access denied</p>
+    <h2>This workspace is restricted to approved users inside the tenant.</h2>
+    <p>Required role: <span class="inline-pill">{{ required_role }}</span></p>
+    {% if allowed_tenant %}
+    <p>Allowed tenant: <span class="inline-pill">{{ allowed_tenant }}</span></p>
+    {% endif %}
+    {% if user %}
+    <p>Signed in as {{ user.email }}.</p>
+    {% endif %}
+</section>
+{% endblock %}

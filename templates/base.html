@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body data-page="{{ page_name }}">
+    <div class="app-shell">
+        <aside class="side-rail">
+            <a class="brand-lockup" href="{{ url_for('home') }}">
+                <span class="brand-badge">M</span>
+                <div>
+                    <strong>Mono's Tasks Management</strong>
+                    <span>High-visibility operations board</span>
+                </div>
+            </a>
+
+            <nav class="nav-stack">
+                <a href="{{ url_for('home') }}" class="nav-pill {% if page_name == 'dashboard' %}active{% endif %}">Control Center</a>
+                <a href="{{ url_for('create_ticket') }}" class="nav-pill {% if page_name == 'create' %}active{% endif %}">Open Ticket</a>
+                <a href="{{ url_for('closed') }}" class="nav-pill {% if page_name == 'closed' %}active{% endif %}">Closed Tickets</a>
+                <a href="{{ url_for('submit_ticket') }}" class="nav-pill {% if page_name == 'submit' %}active{% endif %}">Customer Intake</a>
+            </nav>
+
+            <div class="security-card">
+                <p class="eyebrow">Access policy</p>
+                <strong>Tenant-gated workspace</strong>
+                <p>Required application role: <span class="inline-pill">{{ required_role }}</span></p>
+            </div>
+        </aside>
+
+        <main class="page-frame">
+            <header class="topbar">
+                <div>
+                    <p class="eyebrow">Mono Operations</p>
+                    <h1>Mono's Tasks Management</h1>
+                </div>
+                <div class="user-cluster">
+                    {% if current_user %}
+                    <div class="user-chip">
+                        <span class="user-chip__avatar">{{ current_user.name[:1] if current_user.name else "M" }}</span>
+                        <div>
+                            <strong>{{ current_user.name or current_user.email }}</strong>
+                            <span>{{ current_user.email }}</span>
+                        </div>
+                    </div>
+                    <a class="ghost-button" href="{{ url_for('logout') }}">Sign out</a>
+                    {% elif auth_required %}
+                    <a class="ghost-button" href="/.auth/login/aad">Sign in</a>
+                    {% endif %}
+                </div>
+            </header>
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <div class="toast-stack" id="toastStack"></div>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
