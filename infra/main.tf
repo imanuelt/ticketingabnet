@@ -11,7 +11,7 @@ locals {
   service_plan_name   = "asp-${var.project_name}-prod"
   key_vault_name      = substr("${var.key_vault_name}${random_string.suffix.result}", 0, 24)
   cosmos_account_name = substr("${var.cosmos_account_name}${random_string.suffix.result}", 0, 44)
-  github_subject      = "repo:${var.github_owner}/${var.github_repo}:ref:refs/heads/${var.github_branch}"
+  github_subject      = "repo:${var.github_owner}/${var.github_repo}:environment:${var.github_environment}"
   deployment_app_name = "gh-${var.project_name}-deploy"
 }
 

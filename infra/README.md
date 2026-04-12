@@ -29,6 +29,8 @@ After `terraform apply`, use these outputs as GitHub repository secrets:
 
 The GitHub workflow in `.github/workflows/master_ticketabnet.yml` will then deploy the app to the provisioned Web App on pushes to `master`.
 
+Because the workflow deploys through the `Production` GitHub environment, the Azure federated identity trusts the GitHub OIDC environment subject rather than a plain branch ref.
+
 ## Apply
 
 ```powershell

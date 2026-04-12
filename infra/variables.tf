@@ -50,6 +50,12 @@ variable "github_branch" {
   default     = "master"
 }
 
+variable "github_environment" {
+  description = "GitHub Actions environment allowed to deploy through OIDC."
+  type        = string
+  default     = "Production"
+}
+
 variable "web_app_name" {
   description = "Azure Web App name."
   type        = string
