@@ -77,10 +77,24 @@ jobs:
 
       - name: Reset startup command
         run: |
+          cat <<'EOF' > siteconfig.json
+          {"appCommandLine":""}
+          EOF
           az webapp config set \
             --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
             --name "${{ env.AZURE_WEBAPP_NAME }}" \
-            --startup-file ""
+            --generic-configurations @siteconfig.json
+
+      - name: Ensure Python build settings
+        run: |
+          az webapp config appsettings set \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --name "${{ env.AZURE_WEBAPP_NAME }}" \
+            --settings SCM_DO_BUILD_DURING_DEPLOYMENT=true ENABLE_ORYX_BUILD=true
+          az webapp config appsettings delete \
+            --resource-group "${{ env.AZURE_RESOURCE_GROUP }}" \
+            --name "${{ env.AZURE_WEBAPP_NAME }}" \
+            --setting-names WEBSITE_RUN_FROM_PACKAGE || true
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3

@@ -117,8 +117,8 @@ resource "azurerm_linux_web_app" "this" {
     COSMOS_DB_DATABASE                    = azurerm_cosmosdb_sql_database.this.name
     COSMOS_DB_KEY                         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.cosmos_key.versionless_id})"
     COSMOS_DB_URI                         = "@Microsoft.KeyVault(SecretUri=${azurerm_key_vault_secret.cosmos_uri.versionless_id})"
+    ENABLE_ORYX_BUILD                     = "true"
     SCM_DO_BUILD_DURING_DEPLOYMENT        = "true"
-    WEBSITE_RUN_FROM_PACKAGE              = "1"
   }
 }
 
