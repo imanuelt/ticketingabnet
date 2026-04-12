@@ -1,5 +1,5 @@
 flask
-azure-cosmos
+azure-cosmos>=4.7,<5
 pytz
 python-dotenv
 Jinja2

@@ -43,20 +43,6 @@ resource "azurerm_key_vault" "this" {
   sku_name                   = "standard"
   purge_protection_enabled   = false
   soft_delete_retention_days = 7
-
-  access_policy {
-    tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = data.azurerm_client_config.current.object_id
-
-    secret_permissions = [
-      "Delete",
-      "Get",
-      "List",
-      "Purge",
-      "Recover",
-      "Set"
-    ]
-  }
 }
 
 resource "azurerm_cosmosdb_account" "this" {
@@ -119,7 +105,6 @@ resource "azurerm_linux_web_app" "this" {
 
   site_config {
     always_on        = false
-    app_command_line = "gunicorn --bind=0.0.0.0 --timeout 600 app:app"
 
     application_stack {
       python_version = "3.12"
@@ -145,6 +130,21 @@ resource "azurerm_key_vault_access_policy" "web_app" {
   secret_permissions = [
     "Get",
     "List"
+  ]
+}
+
+resource "azurerm_key_vault_access_policy" "current_user" {
+  key_vault_id = azurerm_key_vault.this.id
+  tenant_id    = data.azurerm_client_config.current.tenant_id
+  object_id    = data.azurerm_client_config.current.object_id
+
+  secret_permissions = [
+    "Delete",
+    "Get",
+    "List",
+    "Purge",
+    "Recover",
+    "Set"
   ]
 }
 

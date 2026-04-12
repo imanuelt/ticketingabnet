@@ -21,19 +21,28 @@ def get_required_env(name):
 
 
 # Cosmos DB configuration
-COSMOS_DB_URI = get_required_env("COSMOS_DB_URI")
-COSMOS_DB_KEY = get_required_env("COSMOS_DB_KEY")
+COSMOS_DB_URI = "COSMOS_DB_URI"
+COSMOS_DB_KEY = "COSMOS_DB_KEY"
 DATABASE_NAME = os.getenv("COSMOS_DB_DATABASE", "ticketingdb")
 CONTAINER_NAME = os.getenv("COSMOS_DB_CONTAINER", "ticketingdbcont")
+container = None
 
-client = CosmosClient(COSMOS_DB_URI, COSMOS_DB_KEY)
-database = client.get_database_client(DATABASE_NAME)
-container = database.get_container_client(CONTAINER_NAME)
+
+def get_container():
+    global container
+    if container is None:
+        client = CosmosClient(
+            get_required_env(COSMOS_DB_URI),
+            get_required_env(COSMOS_DB_KEY),
+        )
+        database = client.get_database_client(DATABASE_NAME)
+        container = database.get_container_client(CONTAINER_NAME)
+    return container
 
 
 @app.route('/')
 def home():
-    tickets = list(container.read_all_items())
+    tickets = list(get_container().read_all_items())
     tickets = [t for t in tickets if t['status'] != 'Closed']
     open_tickets = [t for t in tickets if t['status'] == 'Open']
     in_progress_tickets = [t for t in tickets if t['status'] == 'In Progress']
@@ -65,11 +74,11 @@ def create_ticket():
             "date_opened": date_opened,  # Add date opened
             "date_closed": None         # Initially, date_closed is None
         }
-        container.create_item(new_ticket)
+        get_container().create_item(new_ticket)
         return redirect(url_for('home'))
 
     # Generate the next ticket ID
-    tickets = list(container.read_all_items())
+    tickets = list(get_container().read_all_items())
     next_ticket_id = max([int(t['id']) for t in tickets], default=0) + 1
     return render_template('create.html', ticket_id=next_ticket_id)
 
@@ -79,7 +88,7 @@ def submit_ticket():
     if request.method == 'POST':
         data = request.form
         date_opened = datetime.now(israel_tz).strftime('%d/%m/%Y')
-        tickets = list(container.read_all_items())
+        tickets = list(get_container().read_all_items())
         next_ticket_id = max([int(t['id']) for t in tickets], default=0) + 1
 
         new_ticket = {
@@ -98,7 +107,7 @@ def submit_ticket():
             "date_opened": date_opened,
             "date_closed": None
         }
-        container.create_item(new_ticket)
+        get_container().create_item(new_ticket)
         return render_template("submit_ticket.html", ticket_id=next_ticket_id)
 
     return render_template("submit_ticket.html")
@@ -106,7 +115,7 @@ def submit_ticket():
 
 @app.route('/closed')
 def closed():
-    tickets = list(container.read_all_items())
+    tickets = list(get_container().read_all_items())
     closed_tickets = [t for t in tickets if t['status'] == 'Closed']
     return render_template('closed.html', headline="ABnet Microsoft Management System", tickets=closed_tickets)
 
@@ -115,14 +124,14 @@ def closed():
 def reopen_ticket(ticket_id):
     try:
         query = f"SELECT * FROM c WHERE c.id = '{ticket_id}'"
-        ticket_list = list(container.query_items(query=query, enable_cross_partition_query=True))
+        ticket_list = list(get_container().query_items(query=query, enable_cross_partition_query=True))
         if not ticket_list:
             raise Exception(f"Ticket with ID {ticket_id} not found.")
 
         ticket = ticket_list[0]
         ticket['status'] = 'Open'
         ticket['date_closed'] = None  # Remove date closed when reopened
-        container.upsert_item(body=ticket)
+        get_container().upsert_item(body=ticket)
         return redirect(url_for('closed'))
     except Exception as e:
         print(f"Error occurred while reopening ticket: {e}")
@@ -138,7 +147,7 @@ def update_ticket():
         value = data['value']
 
         query = f"SELECT * FROM c WHERE c.id = '{ticket_id}'"
-        ticket_list = list(container.query_items(query=query, enable_cross_partition_query=True))
+        ticket_list = list(get_container().query_items(query=query, enable_cross_partition_query=True))
         if not ticket_list:
             raise Exception(f"Ticket with ID {ticket_id} not found.")
 
@@ -151,11 +160,16 @@ def update_ticket():
         elif field == 'status' and value != 'Closed':
             ticket['date_closed'] = None  # Reset if reopened or status changed
 
-        container.upsert_item(body=ticket)
+        get_container().upsert_item(body=ticket)
         return jsonify({"success": True})
     except Exception as e:
         print(f"Error occurred while updating ticket: {e}")
         return jsonify({"success": False, "error": str(e)}), 400
+
+
+@app.route('/health')
+def health():
+    return jsonify({"status": "ok"})
 
 
 # This block is required to run the Flask app
