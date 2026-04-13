@@ -4,8 +4,8 @@
 <section class="hero-panel">
     <div class="hero-copy">
         <p class="eyebrow">Operations command deck</p>
-        <h2>Track work in motion with live editing, rapid filtering, and a cleaner ticket signal.</h2>
-        <p>Search, update, and prioritize the board without page hops. Every card below is live-editable.</p>
+        <h2>Track work in motion with live editing, high-signal filters, and a board that scales as tickets grow.</h2>
+        <p>The control center now pages through results in focused batches so the board stays fast and readable over time.</p>
     </div>
     <div class="hero-metrics">
         <article class="metric-card">
@@ -17,34 +17,45 @@
             <strong>{{ in_progress_count }}</strong>
         </article>
         <article class="metric-card">
-            <span>Total active</span>
+            <span>Closed</span>
+            <strong>{{ closed_count }}</strong>
+        </article>
+        <article class="metric-card">
+            <span>Total tickets</span>
             <strong>{{ total_count }}</strong>
         </article>
     </div>
 </section>
 
-<section class="toolbar glass-panel">
+<form class="toolbar glass-panel" id="dashboardFilters" method="get">
     <div class="toolbar-group">
         <label class="search-shell">
             <span>Search</span>
-            <input id="ticketSearch" type="search" placeholder="Headline, owner, notes, description">
+            <input id="ticketSearch" name="q" type="search" value="{{ filters.search }}" placeholder="Headline, owner, notes, description">
         </label>
         <label class="search-shell compact">
             <span>Owner</span>
-            <select id="ownerFilter">
+            <select id="ownerFilter" name="owner">
                 <option value="">All owners</option>
                 {% for owner in owners %}
-                <option value="{{ owner }}">{{ owner }}</option>
+                <option value="{{ owner }}" {% if filters.owner == owner %}selected{% endif %}>{{ owner }}</option>
                 {% endfor %}
             </select>
         </label>
     </div>
     <div class="chip-row" id="statusFilters">
-        <button class="chip is-active" data-status="">All</button>
-        <button class="chip" data-status="Open">Open</button>
-        <button class="chip" data-status="In Progress">In Progress</button>
-        <button class="chip" data-status="Closed">Closed</button>
+        <button class="chip {% if not filters.status %}is-active{% endif %}" type="button" data-status-filter="">All</button>
+        <button class="chip {% if filters.status == 'Open' %}is-active{% endif %}" type="button" data-status-filter="Open">Open</button>
+        <button class="chip {% if filters.status == 'In Progress' %}is-active{% endif %}" type="button" data-status-filter="In Progress">In Progress</button>
+        <button class="chip {% if filters.status == 'Closed' %}is-active{% endif %}" type="button" data-status-filter="Closed">Closed</button>
     </div>
+    <input type="hidden" name="status" id="statusFilter" value="{{ filters.status }}">
+    <input type="hidden" name="page" value="1">
+</form>
+
+<section class="results-meta">
+    <p>Showing {{ tickets|length }} of {{ filtered_count }} matching tickets.</p>
+    <span>Page {{ pagination.current_page }} of {{ pagination.total_pages }}</span>
 </section>
 
 <section class="ticket-grid" id="ticketGrid">
@@ -96,4 +107,27 @@
     </article>
     {% endfor %}
 </section>
+
+{% if not tickets %}
+<section class="empty-state glass-panel">
+    <p class="eyebrow">No tickets found</p>
+    <h3>Try broadening the filters or clearing the search.</h3>
+</section>
+{% endif %}
+
+{% if pagination.total_pages > 1 %}
+<nav class="pager">
+    {% if pagination.prev_url %}
+    <a class="ghost-button" href="{{ pagination.prev_url }}">Previous</a>
+    {% endif %}
+    <div class="pager__pages">
+        {% for page in pagination.pages %}
+        <a class="pager-link {% if page.number == pagination.current_page %}active{% endif %}" href="{{ page.url }}">{{ page.number }}</a>
+        {% endfor %}
+    </div>
+    {% if pagination.next_url %}
+    <a class="ghost-button" href="{{ pagination.next_url }}">Next</a>
+    {% endif %}
+</nav>
+{% endif %}
 {% endblock %}

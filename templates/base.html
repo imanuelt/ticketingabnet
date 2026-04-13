@@ -12,7 +12,7 @@
             <a class="brand-lockup" href="{{ url_for('home') }}">
                 <span class="brand-badge">M</span>
                 <div>
-                    <strong>Mono's Tasks Management</strong>
+                    <strong>Mano's Tasks Management</strong>
                     <span>High-visibility operations board</span>
                 </div>
             </a>
@@ -23,19 +23,13 @@
                 <a href="{{ url_for('closed') }}" class="nav-pill {% if page_name == 'closed' %}active{% endif %}">Closed Tickets</a>
                 <a href="{{ url_for('submit_ticket') }}" class="nav-pill {% if page_name == 'submit' %}active{% endif %}">Customer Intake</a>
             </nav>
-
-            <div class="security-card">
-                <p class="eyebrow">Access policy</p>
-                <strong>Tenant-gated workspace</strong>
-                <p>Required application role: <span class="inline-pill">{{ required_role }}</span></p>
-            </div>
         </aside>
 
         <main class="page-frame">
             <header class="topbar">
                 <div>
-                    <p class="eyebrow">Mono Operations</p>
-                    <h1>Mono's Tasks Management</h1>
+                    <p class="eyebrow">Mano Operations</p>
+                    <h1>Mano's Tasks Management</h1>
                 </div>
                 <div class="user-cluster">
                     {% if current_user %}

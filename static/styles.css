@@ -146,18 +146,11 @@ textarea {
     transform: translateX(4px);
 }
 
-.security-card,
 .glass-panel {
     border: 1px solid var(--border);
     background: var(--panel);
     box-shadow: var(--shadow);
     backdrop-filter: blur(18px);
-}
-
-.security-card {
-    margin-top: 2rem;
-    padding: 1.15rem;
-    border-radius: 1.4rem;
 }
 
 .page-frame {
@@ -297,16 +290,15 @@ textarea {
 .hero-copy p:last-child,
 .page-hero p:last-child,
 .preview-block p,
-.security-card p,
 .unauthorized-panel p {
     color: var(--muted);
 }
 
 .hero-metrics {
     display: grid;
-    grid-template-columns: repeat(3, minmax(120px, 1fr));
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
     gap: 1rem;
-    width: min(460px, 100%);
+    width: min(620px, 100%);
 }
 
 .metric-card {
@@ -390,6 +382,12 @@ textarea {
     outline: none;
 }
 
+.search-shell select option,
+.field-shell select option {
+    color: #07111f;
+    background: #edf4ff;
+}
+
 .field-shell textarea {
     min-height: 92px;
     resize: vertical;
@@ -429,6 +427,65 @@ textarea {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
     gap: 1rem;
+}
+
+.results-meta,
+.pager,
+.pager__pages,
+.empty-state {
+    display: flex;
+    gap: 1rem;
+}
+
+.results-meta,
+.pager {
+    align-items: center;
+    justify-content: space-between;
+}
+
+.results-meta {
+    margin: -0.2rem 0 1rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+}
+
+.empty-state {
+    margin-top: 1rem;
+    padding: 1.4rem;
+    border-radius: 1.6rem;
+    flex-direction: column;
+}
+
+.empty-state h3 {
+    margin: 0;
+    font-family: "Space Grotesk", sans-serif;
+}
+
+.pager {
+    margin-top: 1.2rem;
+    flex-wrap: wrap;
+}
+
+.pager__pages {
+    flex-wrap: wrap;
+}
+
+.pager-link {
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.6rem;
+    height: 2.6rem;
+    padding: 0 0.9rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--muted);
+}
+
+.pager-link.active {
+    background: linear-gradient(135deg, rgba(100, 243, 255, 0.18), rgba(24, 183, 255, 0.22));
+    color: var(--text);
+    border-color: rgba(100, 243, 255, 0.22);
 }
 
 .ticket-card,
@@ -617,5 +674,11 @@ textarea {
     .preview-meta,
     .archive-meta {
         grid-template-columns: 1fr;
+    }
+
+    .results-meta,
+    .pager {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }

@@ -43,35 +43,14 @@ const ticketApp = (() => {
     }
 
     function initDashboardFilters() {
-        const grid = document.getElementById("ticketGrid");
-        if (!grid) return;
+        const form = document.getElementById("dashboardFilters");
+        if (!form) return;
 
-        const search = document.getElementById("ticketSearch");
-        const owner = document.getElementById("ownerFilter");
-        const chips = Array.from(document.querySelectorAll("#statusFilters .chip"));
-        let activeStatus = "";
-
-        const filterCards = () => {
-            const searchValue = (search?.value || "").trim().toLowerCase();
-            const ownerValue = owner?.value || "";
-
-            grid.querySelectorAll(".ticket-card").forEach((card) => {
-                const matchesSearch = !searchValue || card.dataset.ticketSearch.includes(searchValue);
-                const matchesOwner = !ownerValue || card.dataset.assigned === ownerValue;
-                const matchesStatus = !activeStatus || card.dataset.status === activeStatus;
-                card.hidden = !(matchesSearch && matchesOwner && matchesStatus);
-            });
-        };
-
-        search?.addEventListener("input", filterCards);
-        owner?.addEventListener("change", filterCards);
-        chips.forEach((chip) => {
-            chip.addEventListener("click", () => {
-                chips.forEach((item) => item.classList.remove("is-active"));
-                chip.classList.add("is-active");
-                activeStatus = chip.dataset.status;
-                filterCards();
-            });
+        initFilterForm(form, {
+            searchSelector: "#ticketSearch",
+            selectSelector: "#ownerFilter",
+            statusInputSelector: "#statusFilter",
+            chipSelector: "[data-status-filter]",
         });
     }
 
@@ -89,16 +68,13 @@ const ticketApp = (() => {
     }
 
     function initClosedFilters() {
-        const grid = document.getElementById("closedGrid");
-        const search = document.getElementById("closedSearch");
-        if (!grid || !search) return;
-
-        search.addEventListener("input", () => {
-            const value = search.value.trim().toLowerCase();
-            grid.querySelectorAll(".archive-card").forEach((card) => {
-                card.hidden = value && !card.dataset.ticketSearch.includes(value);
+        const form = document.getElementById("closedFilters");
+        if (form) {
+            initFilterForm(form, {
+                searchSelector: "#closedSearch",
+                selectSelector: "#closedOwnerFilter",
             });
-        });
+        }
 
         document.querySelectorAll("[data-reopen-form]").forEach((form) => {
             form.addEventListener("submit", async (event) => {
@@ -117,6 +93,38 @@ const ticketApp = (() => {
                 } catch (error) {
                     showToast(error.message || "Unable to reopen ticket", "error");
                 }
+            });
+        });
+    }
+
+    function initFilterForm(form, options = {}) {
+        const search = options.searchSelector ? form.querySelector(options.searchSelector) : null;
+        const select = options.selectSelector ? form.querySelector(options.selectSelector) : null;
+        const statusInput = options.statusInputSelector ? form.querySelector(options.statusInputSelector) : null;
+        const chips = options.chipSelector ? Array.from(form.querySelectorAll(options.chipSelector)) : [];
+        const pageInput = form.querySelector('input[name="page"]');
+        let searchTimer;
+
+        const submitFilters = () => {
+            if (pageInput) {
+                pageInput.value = "1";
+            }
+            form.requestSubmit();
+        };
+
+        search?.addEventListener("input", () => {
+            window.clearTimeout(searchTimer);
+            searchTimer = window.setTimeout(submitFilters, 280);
+        });
+
+        select?.addEventListener("change", submitFilters);
+
+        chips.forEach((chip) => {
+            chip.addEventListener("click", () => {
+                if (statusInput) {
+                    statusInput.value = chip.dataset.statusFilter || "";
+                }
+                submitFilters();
             });
         });
     }

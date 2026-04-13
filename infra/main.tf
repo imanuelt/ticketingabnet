@@ -13,7 +13,7 @@ locals {
   cosmos_account_name = substr("${var.cosmos_account_name}${random_string.suffix.result}", 0, 44)
   github_subject      = "repo:${var.github_owner}/${var.github_repo}:environment:${var.github_environment}"
   deployment_app_name = "gh-${var.project_name}-deploy"
-  auth_app_name       = "Mono's Tasks Management"
+  auth_app_name       = "Mano's Tasks Management"
   auth_callback_url   = "https://${var.web_app_name}.azurewebsites.net/.auth/login/aad/callback"
 }
 
@@ -200,7 +200,7 @@ resource "azuread_application" "web_auth" {
 
   app_role {
     allowed_member_types = ["User"]
-    description          = "Grants access to Mono's Tasks Management."
+    description          = "Grants access to Mano's Tasks Management."
     display_name         = var.required_app_role
     enabled              = true
     id                   = random_uuid.task_user_role_id.result

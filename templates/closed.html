@@ -4,17 +4,33 @@
 <section class="page-hero glass-panel">
     <div>
         <p class="eyebrow">Archive</p>
-        <h2>Review closed work, reopen when needed, and keep historical context visible.</h2>
+        <h2>Review closed work, reopen when needed, and keep historical context visible without flooding the page.</h2>
     </div>
 </section>
 
-<section class="toolbar glass-panel">
+<form class="toolbar glass-panel" id="closedFilters" method="get">
     <div class="toolbar-group">
         <label class="search-shell">
             <span>Search archive</span>
-            <input id="closedSearch" type="search" placeholder="Search by headline, owner, or notes">
+            <input id="closedSearch" name="q" type="search" value="{{ filters.search }}" placeholder="Search by headline, owner, or notes">
+        </label>
+        <label class="search-shell compact">
+            <span>Owner</span>
+            <select id="closedOwnerFilter" name="owner">
+                <option value="">All owners</option>
+                {% for owner in owners %}
+                <option value="{{ owner }}" {% if filters.owner == owner %}selected{% endif %}>{{ owner }}</option>
+                {% endfor %}
+            </select>
         </label>
     </div>
+    <input type="hidden" name="status" value="Closed">
+    <input type="hidden" name="page" value="1">
+</form>
+
+<section class="results-meta">
+    <p>Showing {{ tickets|length }} of {{ filtered_count }} closed tickets.</p>
+    <span>Page {{ pagination.current_page }} of {{ pagination.total_pages }}</span>
 </section>
 
 <section class="archive-grid" id="closedGrid">
@@ -60,4 +76,27 @@
     </article>
     {% endfor %}
 </section>
+
+{% if not tickets %}
+<section class="empty-state glass-panel">
+    <p class="eyebrow">Archive is clear</p>
+    <h3>No closed tickets match the current filters.</h3>
+</section>
+{% endif %}
+
+{% if pagination.total_pages > 1 %}
+<nav class="pager">
+    {% if pagination.prev_url %}
+    <a class="ghost-button" href="{{ pagination.prev_url }}">Previous</a>
+    {% endif %}
+    <div class="pager__pages">
+        {% for page in pagination.pages %}
+        <a class="pager-link {% if page.number == pagination.current_page %}active{% endif %}" href="{{ page.url }}">{{ page.number }}</a>
+        {% endfor %}
+    </div>
+    {% if pagination.next_url %}
+    <a class="ghost-button" href="{{ pagination.next_url }}">Next</a>
+    {% endif %}
+</nav>
+{% endif %}
 {% endblock %}
