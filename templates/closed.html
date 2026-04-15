@@ -4,7 +4,7 @@
 <section class="page-hero glass-panel">
     <div>
         <p class="eyebrow">Archive</p>
-        <h2>Review closed work, reopen when needed, and keep historical context visible without flooding the page.</h2>
+        <h2>Review completed work with the same triage fields and context you used to resolve it.</h2>
     </div>
 </section>
 
@@ -12,7 +12,7 @@
     <div class="toolbar-group">
         <label class="search-shell">
             <span>Search archive</span>
-            <input id="closedSearch" name="q" type="search" value="{{ filters.search }}" placeholder="Search by headline, owner, or notes">
+            <input id="closedSearch" name="q" type="search" value="{{ filters.search }}" placeholder="Headline, requester, service, owner">
         </label>
         <label class="search-shell compact">
             <span>Owner</span>
@@ -23,6 +23,32 @@
                 {% endfor %}
             </select>
         </label>
+        <label class="search-shell compact">
+            <span>Priority</span>
+            <select id="closedPriorityFilter" name="priority">
+                <option value="">All priorities</option>
+                {% for priority in priority_options %}
+                <option value="{{ priority }}" {% if filters.priority == priority %}selected{% endif %}>{{ priority }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="search-shell compact">
+            <span>Category</span>
+            <select id="closedCategoryFilter" name="category">
+                <option value="">All categories</option>
+                {% for category in category_options %}
+                <option value="{{ category }}" {% if filters.category == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="search-shell compact">
+            <span>Sort</span>
+            <select id="closedSortFilter" name="sort">
+                {% for sort_key, sort_label in sort_options.items() %}
+                <option value="{{ sort_key }}" {% if filters.sort == sort_key %}selected{% endif %}>{{ sort_label }}</option>
+                {% endfor %}
+            </select>
+        </label>
     </div>
     <input type="hidden" name="status" value="Closed">
     <input type="hidden" name="page" value="1">
@@ -30,33 +56,47 @@
 
 <section class="results-meta">
     <p>Showing {{ tickets|length }} of {{ filtered_count }} closed tickets.</p>
-    <span>Page {{ pagination.current_page }} of {{ pagination.total_pages }}</span>
+    <span>Sorted by {{ sort_options[filters.sort] }} · Page {{ pagination.current_page }} of {{ pagination.total_pages }}</span>
 </section>
 
-<section class="archive-grid" id="closedGrid">
+<section class="archive-grid">
     {% for ticket in tickets %}
-    <article class="archive-card glass-panel"
-        data-ticket-search="{{ (ticket.headline ~ ' ' ~ ticket.assigned_to ~ ' ' ~ ticket.description ~ ' ' ~ ticket.notes)|lower }}">
+    <article class="archive-card glass-panel">
         <div class="archive-card__header">
             <div>
-                <p class="eyebrow">Closed #{{ ticket.id }}</p>
+                <p class="eyebrow">Closed #{{ ticket.id }} · {{ ticket.category }}</p>
                 <h3>{{ ticket.headline }}</h3>
             </div>
-            <span class="status-badge status-closed">{{ ticket.status }}</span>
+            <div class="badge-stack">
+                <span class="priority-badge priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span>
+                <span class="sla-badge sla-{{ ticket.sla_state }}">{{ ticket.sla_label }}</span>
+            </div>
         </div>
 
         <dl class="archive-meta">
             <div>
+                <dt>Requester</dt>
+                <dd>{{ ticket.requester_name }}</dd>
+            </div>
+            <div>
+                <dt>Service</dt>
+                <dd>{{ ticket.service }}</dd>
+            </div>
+            <div>
+                <dt>Owner</dt>
+                <dd>{{ ticket.assigned_to or "Unassigned" }}</dd>
+            </div>
+            <div>
                 <dt>Opened</dt>
-                <dd>{{ ticket.date_opened }}</dd>
+                <dd>{{ ticket.display_opened_at }}</dd>
             </div>
             <div>
                 <dt>Closed</dt>
-                <dd>{{ ticket.date_closed }}</dd>
+                <dd>{{ ticket.display_updated_at }}</dd>
             </div>
             <div>
-                <dt>Assigned</dt>
-                <dd>{{ ticket.assigned_to }}</dd>
+                <dt>Age</dt>
+                <dd>{{ ticket.age_label }}</dd>
             </div>
         </dl>
 

@@ -3,8 +3,8 @@
 {% block content %}
 <section class="page-hero glass-panel">
     <div>
-        <p class="eyebrow">External intake</p>
-        <h2>Capture customer requests in a structured flow that lands directly on the board.</h2>
+        <p class="eyebrow">Customer intake</p>
+        <h2>Capture the customer signal once, route it correctly, and turn it into an actionable ticket immediately.</h2>
     </div>
     {% if ticket_id %}
     <div class="success-chip">Ticket submitted: #{{ ticket_id }}</div>
@@ -53,12 +53,27 @@
 
         <div class="field-row">
             <label class="field-shell">
+                <span>Priority</span>
+                <select id="priority" name="priority" required>
+                    {% for priority in priority_options %}
+                    <option value="{{ priority }}" {% if priority == 'Medium' %}selected{% endif %}>{{ priority }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="field-shell">
+                <span>Category</span>
+                <select id="category" name="category" required>
+                    {% for category in category_options %}
+                    <option value="{{ category }}" {% if category == 'Incident' %}selected{% endif %}>{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label class="field-shell">
                 <span>Service</span>
                 <select id="service" name="service" required>
-                    <option value="Marketplace">Marketplace</option>
-                    <option value="Azure">Azure</option>
-                    <option value="365">365</option>
-                    <option value="Other">Other</option>
+                    {% for service in service_options %}
+                    <option value="{{ service }}" {% if service == 'Operations' %}selected{% endif %}>{{ service }}</option>
+                    {% endfor %}
                 </select>
             </label>
         </div>
@@ -73,21 +88,40 @@
 
     <aside class="glass-panel preview-panel">
         <p class="eyebrow">Customer summary</p>
-        <div class="preview-block">
-            <span>Request</span>
-            <p data-preview="headline">Customer request headline</p>
-        </div>
-        <div class="preview-block">
-            <span>Tenant</span>
-            <p><span data-preview="tenant_name">Tenant</span> / <span data-preview="tenant_domain">domain</span></p>
-        </div>
-        <div class="preview-block">
-            <span>Primary contact</span>
-            <p><span data-preview="contact_name">First</span> <span data-preview="contact_family">Last</span> / <span data-preview="email">mail@example.com</span></p>
-        </div>
-        <div class="preview-block">
-            <span>Description</span>
-            <p data-preview="description">Describe the issue here to build the final task record.</p>
+        <div class="preview-card">
+            <div class="preview-card__header">
+                <span class="inline-pill">Customer request</span>
+                <div class="badge-stack">
+                    <span class="priority-badge priority-medium" data-badge-preview="priority">Medium</span>
+                </div>
+            </div>
+            <h3 data-preview="headline">Customer request headline</h3>
+            <dl class="preview-meta">
+                <div>
+                    <dt>Tenant</dt>
+                    <dd><span data-preview="tenant_name">Tenant</span> / <span data-preview="tenant_domain">domain</span></dd>
+                </div>
+                <div>
+                    <dt>Contact</dt>
+                    <dd><span data-preview="contact_name">First</span> <span data-preview="contact_family">Last</span></dd>
+                </div>
+                <div>
+                    <dt>Service</dt>
+                    <dd data-preview="service">Operations</dd>
+                </div>
+                <div>
+                    <dt>Category</dt>
+                    <dd data-preview="category">Incident</dd>
+                </div>
+            </dl>
+            <div class="preview-block">
+                <span>Email</span>
+                <p data-preview="email">mail@example.com</p>
+            </div>
+            <div class="preview-block">
+                <span>Description</span>
+                <p data-preview="description">Describe the issue here to create a high-quality ticket record.</p>
+            </div>
         </div>
     </aside>
 </section>

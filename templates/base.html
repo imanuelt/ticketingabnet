@@ -13,20 +13,32 @@
                 <span class="brand-badge">M</span>
                 <div>
                     <strong>Mano's Tasks Management</strong>
-                    <span>High-visibility operations board</span>
+                    <span>Operations signal desk</span>
                 </div>
             </a>
 
             <nav class="nav-stack">
-                <a href="{{ url_for('home') }}" class="nav-pill {% if page_name == 'dashboard' %}active{% endif %}">Control Center</a>
-                <a href="{{ url_for('create_ticket') }}" class="nav-pill {% if page_name == 'create' %}active{% endif %}">Open Ticket</a>
-                <a href="{{ url_for('closed') }}" class="nav-pill {% if page_name == 'closed' %}active{% endif %}">Closed Tickets</a>
-                <a href="{{ url_for('submit_ticket') }}" class="nav-pill {% if page_name == 'submit' %}active{% endif %}">Customer Intake</a>
+                <a href="{{ url_for('home') }}" class="nav-pill {% if page_name == 'dashboard' %}active{% endif %}">
+                    <span>Control Center</span>
+                    <small>Live board and triage</small>
+                </a>
+                <a href="{{ url_for('create_ticket') }}" class="nav-pill {% if page_name == 'create' %}active{% endif %}">
+                    <span>Open Ticket</span>
+                    <small>Internal ticket composer</small>
+                </a>
+                <a href="{{ url_for('closed') }}" class="nav-pill {% if page_name == 'closed' %}active{% endif %}">
+                    <span>Closed Tickets</span>
+                    <small>History and reopen queue</small>
+                </a>
+                <a href="{{ url_for('submit_ticket') }}" class="nav-pill {% if page_name == 'submit' %}active{% endif %}">
+                    <span>Customer Intake</span>
+                    <small>Structured external intake</small>
+                </a>
             </nav>
         </aside>
 
         <main class="page-frame">
-            <header class="topbar">
+            <header class="topbar glass-panel">
                 <div>
                     <p class="eyebrow">Mano Operations</p>
                     <h1>Mano's Tasks Management</h1>
