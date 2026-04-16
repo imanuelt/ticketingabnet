@@ -1,5 +1,9 @@
 data "azurerm_client_config" "current" {}
 
+data "azuread_service_principal" "microsoft_graph" {
+  client_id = "00000003-0000-0000-c000-000000000000"
+}
+
 resource "random_string" "suffix" {
   length  = 5
   upper   = false
@@ -140,6 +144,7 @@ resource "azurerm_linux_web_app" "this" {
   app_settings = {
     APPLICATIONINSIGHTS_CONNECTION_STRING    = azurerm_application_insights.this.connection_string
     ALLOWED_TENANT_ID                        = var.tenant_id
+    APP_AUTH_ENTERPRISE_APP_OBJECT_ID        = azuread_service_principal.web_auth.object_id
     AUTH_REQUIRED                            = "true"
     COSMOS_DB_CONTAINER                      = azurerm_cosmosdb_sql_container.this.name
     COSMOS_DB_DATABASE                       = azurerm_cosmosdb_sql_database.this.name
@@ -229,6 +234,12 @@ resource "azuread_service_principal" "web_auth" {
 
 resource "azuread_service_principal" "github_deploy" {
   client_id = azuread_application.github_deploy.client_id
+}
+
+resource "azuread_app_role_assignment" "web_app_graph_read" {
+  app_role_id         = data.azuread_service_principal.microsoft_graph.app_role_ids["Application.Read.All"]
+  principal_object_id = azurerm_linux_web_app.this.identity[0].principal_id
+  resource_object_id  = data.azuread_service_principal.microsoft_graph.object_id
 }
 
 resource "azuread_application_federated_identity_credential" "github_actions" {

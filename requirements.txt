@@ -1,5 +1,6 @@
 flask
 azure-cosmos>=4.7,<5
+azure-identity
 pytz
 python-dotenv
 Jinja2

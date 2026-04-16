@@ -15,24 +15,52 @@ const ticketApp = (() => {
         textarea.style.height = `${textarea.scrollHeight}px`;
     }
 
+    async function postUpdate(payload) {
+        const response = await fetch("/update", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+        const data = await response.json();
+        if (!data.success) {
+            throw new Error(data.error || "Update failed");
+        }
+        return data.ticket;
+    }
+
     async function updateTicket(ticketId, field, value) {
         try {
-            const response = await fetch("/update", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ id: ticketId, field, value }),
-            });
-            const data = await response.json();
-            if (!data.success) {
-                throw new Error(data.error || "Update failed");
-            }
+            await postUpdate({ id: ticketId, field, value });
             showToast("Ticket synced");
         } catch (error) {
             console.error(error);
             showToast(error.message || "Unable to update ticket", "error");
         }
+    }
+
+    async function updateAssignment(ticketId, select) {
+        const option = select.options[select.selectedIndex];
+        try {
+            await postUpdate({
+                id: ticketId,
+                field: "assignment",
+                value: {
+                    assigned_to_id: select.value,
+                    assigned_to: option?.dataset.name || "",
+                },
+            });
+            showToast("Assignment updated");
+        } catch (error) {
+            console.error(error);
+            showToast(error.message || "Unable to update assignment", "error");
+        }
+    }
+
+    async function quickSetStatus(ticketId, status) {
+        await updateTicket(ticketId, "status", status);
+        window.setTimeout(() => window.location.reload(), 280);
     }
 
     function initAutosize() {
@@ -48,25 +76,45 @@ const ticketApp = (() => {
             .split(" ")
             .filter((className) => !className.startsWith(`${prefix}-`))
             .join(" ");
-        element.classList.add(`${prefix}-${value.toLowerCase().replace(/\s+/g, "-")}`);
+        element.classList.add(`${prefix}-${(value || "").toLowerCase().replace(/\s+/g, "-")}`);
     }
 
     function syncPreviewField(field) {
+        const previewValue = field.dataset.previewValue || field.value;
         document.querySelectorAll(`[data-preview="${field.id}"]`).forEach((target) => {
-            target.textContent = field.value || target.dataset.fallback || "Pending";
+            target.textContent = previewValue || target.dataset.fallback || "Pending";
         });
 
         if (field.id === "priority") {
             document.querySelectorAll('[data-badge-preview="priority"]').forEach((target) => {
-                target.textContent = field.value || "Medium";
-                applyToneClass(target, "priority", field.value || "Medium");
+                target.textContent = previewValue || "Medium";
+                applyToneClass(target, "priority", previewValue || "Medium");
             });
         }
+    }
+
+    function wireAssigneePickers(scope = document) {
+        scope.querySelectorAll("[data-assignee-picker]").forEach((select) => {
+            const hiddenTarget = document.getElementById(select.dataset.assigneeTarget);
+            const syncSelection = () => {
+                const option = select.options[select.selectedIndex];
+                const displayName = option?.dataset.name || "";
+                if (hiddenTarget) {
+                    hiddenTarget.value = displayName;
+                    hiddenTarget.dataset.previewValue = displayName;
+                    syncPreviewField(hiddenTarget);
+                }
+            };
+            syncSelection();
+            select.addEventListener("change", syncSelection);
+        });
     }
 
     function bindPreview(formId) {
         const form = document.getElementById(formId);
         if (!form) return;
+
+        wireAssigneePickers(form);
 
         form.querySelectorAll("input, textarea, select").forEach((field) => {
             syncPreviewField(field);
@@ -117,7 +165,7 @@ const ticketApp = (() => {
 
         initFilterForm(form, {
             searchSelector: "#ticketSearch",
-            selectSelectors: ["#ownerFilter", "#priorityFilter", "#categoryFilter", "#sortFilter"],
+            selectSelectors: ["#ownerFilter", "#priorityFilter", "#categoryFilter", "#serviceFilter", "#requesterFilter", "#sortFilter"],
             statusInputSelector: "#statusFilter",
             chipSelector: "[data-status-filter]",
         });
@@ -128,7 +176,7 @@ const ticketApp = (() => {
         if (form) {
             initFilterForm(form, {
                 searchSelector: "#closedSearch",
-                selectSelectors: ["#closedOwnerFilter", "#closedPriorityFilter", "#closedCategoryFilter", "#closedSortFilter"],
+                selectSelectors: ["#closedOwnerFilter", "#closedPriorityFilter", "#closedCategoryFilter", "#closedServiceFilter", "#closedRequesterFilter", "#closedSortFilter"],
             });
         }
 
@@ -153,15 +201,32 @@ const ticketApp = (() => {
         });
     }
 
+    function initTicketEditors() {
+        document.querySelectorAll("[data-ticket-editor-toggle]").forEach((button) => {
+            button.addEventListener("click", () => {
+                const card = button.closest(".ticket-card");
+                const editor = card?.querySelector(".ticket-editor");
+                if (!editor) return;
+                const willOpen = editor.hasAttribute("hidden");
+                editor.toggleAttribute("hidden", !willOpen);
+                card.classList.toggle("is-editing", willOpen);
+                card.querySelectorAll("[data-ticket-editor-toggle]").forEach((toggle) => {
+                    toggle.setAttribute("aria-expanded", willOpen ? "true" : "false");
+                });
+            });
+        });
+    }
+
     function init() {
         initAutosize();
         initDashboardFilters();
         initClosedFilters();
+        initTicketEditors();
         bindPreview("createTicketForm");
         bindPreview("submitTicketForm");
     }
 
-    return { init, updateTicket };
+    return { init, updateTicket, updateAssignment, quickSetStatus };
 })();
 
 window.ticketApp = ticketApp;

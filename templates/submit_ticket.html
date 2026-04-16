@@ -5,10 +5,29 @@
     <div>
         <p class="eyebrow">Customer intake</p>
         <h2>Capture the customer signal once, route it correctly, and turn it into an actionable ticket immediately.</h2>
+        <p>Use a guided intake flow that preserves contact quality, service context, and urgency without creating cleanup work later.</p>
     </div>
     {% if ticket_id %}
     <div class="success-chip">Ticket submitted: #{{ ticket_id }}</div>
     {% endif %}
+</section>
+
+<section class="signal-grid signal-grid--three">
+    <article class="signal-card glass-panel">
+        <span class="signal-card__label">Structured request</span>
+        <strong>Ready to triage</strong>
+        <p>Customer details, service, and issue framing land in one consistent record.</p>
+    </article>
+    <article class="signal-card glass-panel">
+        <span class="signal-card__label">Routing quality</span>
+        <strong>Fewer retries</strong>
+        <p>Better intake means less back-and-forth before work can actually begin.</p>
+    </article>
+    <article class="signal-card glass-panel">
+        <span class="signal-card__label">Desk visibility</span>
+        <strong>Immediate</strong>
+        <p>Every submission is immediately shaped into the same operational model as internal work.</p>
+    </article>
 </section>
 
 <section class="composer-layout">
@@ -80,7 +99,7 @@
 
         <label class="field-shell">
             <span>Description</span>
-            <textarea id="description" name="description" data-autosize required></textarea>
+            <textarea id="description" name="description" data-autosize required placeholder="Describe the customer issue, observed impact, and expected resolution."></textarea>
         </label>
 
         <button type="submit" class="primary-button">Submit ticket</button>
@@ -95,32 +114,32 @@
                     <span class="priority-badge priority-medium" data-badge-preview="priority">Medium</span>
                 </div>
             </div>
-            <h3 data-preview="headline">Customer request headline</h3>
+            <h3 data-preview="headline" data-fallback="Customer request headline">Customer request headline</h3>
             <dl class="preview-meta">
                 <div>
                     <dt>Tenant</dt>
-                    <dd><span data-preview="tenant_name">Tenant</span> / <span data-preview="tenant_domain">domain</span></dd>
+                    <dd><span data-preview="tenant_name" data-fallback="Tenant">Tenant</span> / <span data-preview="tenant_domain" data-fallback="domain">domain</span></dd>
                 </div>
                 <div>
                     <dt>Contact</dt>
-                    <dd><span data-preview="contact_name">First</span> <span data-preview="contact_family">Last</span></dd>
+                    <dd><span data-preview="contact_name" data-fallback="First">First</span> <span data-preview="contact_family" data-fallback="Last">Last</span></dd>
                 </div>
                 <div>
                     <dt>Service</dt>
-                    <dd data-preview="service">Operations</dd>
+                    <dd data-preview="service" data-fallback="Operations">Operations</dd>
                 </div>
                 <div>
                     <dt>Category</dt>
-                    <dd data-preview="category">Incident</dd>
+                    <dd data-preview="category" data-fallback="Incident">Incident</dd>
                 </div>
             </dl>
             <div class="preview-block">
                 <span>Email</span>
-                <p data-preview="email">mail@example.com</p>
+                <p data-preview="email" data-fallback="mail@example.com">mail@example.com</p>
             </div>
             <div class="preview-block">
                 <span>Description</span>
-                <p data-preview="description">Describe the issue here to create a high-quality ticket record.</p>
+                <p data-preview="description" data-fallback="Describe the issue here to create a high-quality ticket record.">Describe the issue here to create a high-quality ticket record.</p>
             </div>
         </div>
     </aside>

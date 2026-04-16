@@ -4,14 +4,34 @@
 <section class="page-hero glass-panel">
     <div>
         <p class="eyebrow">Internal composer</p>
-        <h2>Open tickets with enough structure to route, prioritize, and resolve them quickly.</h2>
+        <h2>Open tickets with enough structure to route, prioritize, assign, and resolve them without rework.</h2>
+        <p>Use the approved-user directory to assign ownership from the start and create cleaner queue hygiene.</p>
     </div>
     <div class="inline-pill">Ticket #{{ ticket_id }}</div>
+</section>
+
+<section class="signal-grid signal-grid--three">
+    <article class="signal-card glass-panel">
+        <span class="signal-card__label">Structured intake</span>
+        <strong>Priority + SLA</strong>
+        <p>Every internal ticket opens with clear urgency, category, and service mapping.</p>
+    </article>
+    <article class="signal-card glass-panel">
+        <span class="signal-card__label">Controlled assignment</span>
+        <strong>{{ assignable_users|length or 0 }} users</strong>
+        <p>Assignees are pulled from the app’s authorized user pool instead of free text.</p>
+    </article>
+    <article class="signal-card glass-panel">
+        <span class="signal-card__label">Cleaner handoff</span>
+        <strong>One pass</strong>
+        <p>Create work with enough operational detail that the next person can move immediately.</p>
+    </article>
 </section>
 
 <section class="composer-layout">
     <form action="{{ url_for('create_ticket') }}" method="post" class="glass-panel compose-form" id="createTicketForm">
         <input type="hidden" id="id" name="id" value="{{ ticket_id }}">
+        <input type="hidden" id="assigned_to" name="assigned_to" value="">
 
         <label class="field-shell">
             <span>Headline</span>
@@ -21,7 +41,12 @@
         <div class="field-row">
             <label class="field-shell">
                 <span>Assigned to</span>
-                <input id="assigned_to" name="assigned_to" type="text" required placeholder="Owner name">
+                <select id="assigned_to_id" name="assigned_to_id" data-assignee-picker data-assignee-target="assigned_to" required>
+                    <option value="">Choose an approved user</option>
+                    {% for user in assignable_users %}
+                    <option value="{{ user.id }}" data-name="{{ user.name }}">{{ user.name }}</option>
+                    {% endfor %}
+                </select>
             </label>
             <label class="field-shell">
                 <span>Requester name</span>
@@ -37,9 +62,9 @@
             <label class="field-shell">
                 <span>Status</span>
                 <select id="status" name="status" required>
-                    <option value="Open" selected>Open</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Closed">Closed</option>
+                    {% for status in status_options %}
+                    <option value="{{ status }}" {% if status == 'Open' %}selected{% endif %}>{{ status }}</option>
+                    {% endfor %}
                 </select>
             </label>
         </div>
@@ -73,12 +98,12 @@
 
         <label class="field-shell">
             <span>Description</span>
-            <textarea id="description" name="description" data-autosize required placeholder="Summarize the issue, blockers, and expected outcome."></textarea>
+            <textarea id="description" name="description" data-autosize required placeholder="Summarize the issue, blockers, expected outcome, and business impact."></textarea>
         </label>
 
         <label class="field-shell">
             <span>Notes</span>
-            <textarea id="notes" name="notes" data-autosize placeholder="Investigation notes, context, or follow-up steps."></textarea>
+            <textarea id="notes" name="notes" data-autosize placeholder="Investigation notes, dependencies, escalation context, or follow-up tasks."></textarea>
         </label>
 
         <button type="submit" class="primary-button">Create ticket</button>
@@ -94,32 +119,32 @@
                     <span class="sla-badge sla-on-track" data-sla-preview>On Track</span>
                 </div>
             </div>
-            <h3 data-preview="headline">Your new task headline</h3>
+            <h3 data-preview="headline" data-fallback="Your new task headline">Your new task headline</h3>
             <dl class="preview-meta">
                 <div>
                     <dt>Assigned</dt>
-                    <dd data-preview="assigned_to">Unassigned</dd>
+                    <dd data-preview="assigned_to" data-fallback="Choose an approved owner">Choose an approved owner</dd>
                 </div>
                 <div>
                     <dt>Requester</dt>
-                    <dd data-preview="requester_name">Internal requester</dd>
+                    <dd data-preview="requester_name" data-fallback="Internal requester">Internal requester</dd>
                 </div>
                 <div>
                     <dt>Service</dt>
-                    <dd data-preview="service">Operations</dd>
+                    <dd data-preview="service" data-fallback="Operations">Operations</dd>
                 </div>
                 <div>
                     <dt>Category</dt>
-                    <dd data-preview="category">Service Request</dd>
+                    <dd data-preview="category" data-fallback="Service Request">Service Request</dd>
                 </div>
             </dl>
             <div class="preview-block">
                 <span>Description</span>
-                <p data-preview="description">Clear issue framing appears here instantly.</p>
+                <p data-preview="description" data-fallback="Clear issue framing appears here instantly.">Clear issue framing appears here instantly.</p>
             </div>
             <div class="preview-block">
                 <span>Notes</span>
-                <p data-preview="notes">Optional notes show up here.</p>
+                <p data-preview="notes" data-fallback="Optional notes show up here.">Optional notes show up here.</p>
             </div>
         </div>
     </aside>

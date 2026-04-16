@@ -4,8 +4,8 @@
 <section class="hero-panel">
     <div class="hero-copy">
         <p class="eyebrow">Mission control</p>
-        <h2>Run the desk from one place with SLA-aware triage, structured ownership, and live updates.</h2>
-        <p>Best-practice desks keep tickets categorized, prioritized, and visible. This board now surfaces urgency, ownership, and aging before things slip.</p>
+        <h2>Run the desk from one place with SLA-aware triage, controlled ownership, and a cleaner editing flow.</h2>
+        <p>High-performing teams keep the board scannable first and editable only when needed. This layout keeps signal density high while still making every ticket easy to triage.</p>
     </div>
     <div class="hero-metrics">
         <article class="metric-card">
@@ -27,6 +27,30 @@
     </div>
 </section>
 
+<section class="command-strip">
+    <a class="command-card glass-panel" href="{{ url_for('create_ticket') }}">
+        <span class="command-card__icon">+</span>
+        <div>
+            <strong>Launch Internal Ticket</strong>
+            <p>Open a structured task with service, owner, and SLA from the start.</p>
+        </div>
+    </a>
+    <a class="command-card glass-panel" href="{{ url_for('submit_ticket') }}">
+        <span class="command-card__icon">↗</span>
+        <div>
+            <strong>Capture Customer Signal</strong>
+            <p>Turn incoming requests into high-quality work items without cleanup later.</p>
+        </div>
+    </a>
+    <a class="command-card glass-panel" href="{{ url_for('closed') }}">
+        <span class="command-card__icon">✓</span>
+        <div>
+            <strong>Review Archive</strong>
+            <p>Audit completed work, reopen quickly, and carry context forward.</p>
+        </div>
+    </a>
+</section>
+
 <section class="signal-grid">
     <article class="signal-card glass-panel">
         <span class="signal-card__label">Due soon</span>
@@ -36,17 +60,17 @@
     <article class="signal-card glass-panel">
         <span class="signal-card__label">Unassigned</span>
         <strong>{{ unassigned_count }}</strong>
-        <p>Requests missing a clear owner.</p>
+        <p>Requests missing a clear owner from the approved user list.</p>
     </article>
     <article class="signal-card glass-panel">
         <span class="signal-card__label">Closed</span>
         <strong>{{ closed_count }}</strong>
-        <p>Resolved work kept searchable for context and audits.</p>
+        <p>Resolved work ready for review, audits, and knowledge recovery.</p>
     </article>
     <article class="signal-card glass-panel">
         <span class="signal-card__label">Total</span>
         <strong>{{ total_count }}</strong>
-        <p>Full workload across internal and customer-requested tickets.</p>
+        <p>Full workload across internal operations and customer-submitted demand.</p>
     </article>
 </section>
 
@@ -80,6 +104,24 @@
                 <option value="">All categories</option>
                 {% for category in category_options %}
                 <option value="{{ category }}" {% if filters.category == category %}selected{% endif %}>{{ category }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="search-shell compact">
+            <span>Service</span>
+            <select id="serviceFilter" name="service">
+                <option value="">All services</option>
+                {% for service in service_options %}
+                <option value="{{ service }}" {% if filters.service == service %}selected{% endif %}>{{ service }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="search-shell compact">
+            <span>Requester</span>
+            <select id="requesterFilter" name="requester">
+                <option value="">All requesters</option>
+                {% for requester in requesters %}
+                <option value="{{ requester }}" {% if filters.requester == requester %}selected{% endif %}>{{ requester }}</option>
                 {% endfor %}
             </select>
         </label>
@@ -151,18 +193,31 @@
                 </div>
             </header>
 
-            <div class="meta-grid">
-                <div class="meta-pill">
+            <p class="ticket-summary">{{ ticket.description_excerpt or "No description provided yet." }}</p>
+
+            <div class="ticket-storyline">
+                <div class="story-pill">
+                    <span>Status</span>
+                    <strong>{{ ticket.status }}</strong>
+                </div>
+                <div class="story-pill">
                     <span>Owner</span>
                     <strong>{{ ticket.assigned_to or "Unassigned" }}</strong>
                 </div>
-                <div class="meta-pill">
+                <div class="story-pill">
                     <span>Requester</span>
                     <strong>{{ ticket.requester_name }}</strong>
                 </div>
-                <div class="meta-pill">
+                <div class="story-pill">
                     <span>Service</span>
                     <strong>{{ ticket.service }}</strong>
+                </div>
+            </div>
+
+            <div class="meta-grid">
+                <div class="meta-pill">
+                    <span>Opened</span>
+                    <strong>{{ ticket.display_opened_at }}</strong>
                 </div>
                 <div class="meta-pill">
                     <span>Updated</span>
@@ -176,67 +231,111 @@
                     <span>Age</span>
                     <strong>{{ ticket.age_label }}</strong>
                 </div>
+                <div class="meta-pill">
+                    <span>Source</span>
+                    <strong>{{ ticket.source }}</strong>
+                </div>
+                <div class="meta-pill">
+                    <span>Requester email</span>
+                    <strong>{{ ticket.requester_email or "Not provided" }}</strong>
+                </div>
             </div>
 
-            <div class="field-row">
-                <label class="field-shell">
-                    <span>Status</span>
-                    <select onchange="ticketApp.updateTicket('{{ ticket.id }}', 'status', this.value)">
-                        {% for status in ['Open', 'In Progress', 'Closed'] %}
-                        <option value="{{ status }}" {% if ticket.status == status %}selected{% endif %}>{{ status }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
-
-                <label class="field-shell">
-                    <span>Priority</span>
-                    <select onchange="ticketApp.updateTicket('{{ ticket.id }}', 'priority', this.value)">
-                        {% for priority in priority_options %}
-                        <option value="{{ priority }}" {% if ticket.priority == priority %}selected{% endif %}>{{ priority }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
+            <div class="ticket-notes-strip">
+                <span>Notes snapshot</span>
+                <p>{{ ticket.notes_excerpt or "No notes yet. Open the edit drawer to add operational context." }}</p>
             </div>
 
-            <div class="field-row">
-                <label class="field-shell">
-                    <span>Category</span>
-                    <select onchange="ticketApp.updateTicket('{{ ticket.id }}', 'category', this.value)">
-                        {% for category in category_options %}
-                        <option value="{{ category }}" {% if ticket.category == category %}selected{% endif %}>{{ category }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
-
-                <label class="field-shell">
-                    <span>Service</span>
-                    <select onchange="ticketApp.updateTicket('{{ ticket.id }}', 'service', this.value)">
-                        {% for service in service_options %}
-                        <option value="{{ service }}" {% if ticket.service == service %}selected{% endif %}>{{ service }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
+            <div class="ticket-actions">
+                <button class="ghost-button accent-button" type="button" data-ticket-editor-toggle aria-expanded="false">
+                    Edit ticket
+                </button>
+                <button class="ghost-button" type="button" onclick="ticketApp.quickSetStatus('{{ ticket.id }}', '{{ 'In Progress' if ticket.status == 'Open' else 'Closed' if ticket.status == 'In Progress' else 'Open' }}')">
+                    {% if ticket.status == "Open" %}
+                    Move to In Progress
+                    {% elif ticket.status == "In Progress" %}
+                    Close ticket
+                    {% else %}
+                    Reopen ticket
+                    {% endif %}
+                </button>
             </div>
 
-            <label class="field-shell">
-                <span>Headline</span>
-                <textarea data-autosize onchange="ticketApp.updateTicket('{{ ticket.id }}', 'headline', this.value)">{{ ticket.headline }}</textarea>
-            </label>
+            <div class="ticket-editor" hidden>
+                <div class="editor-header">
+                    <div>
+                        <p class="eyebrow">Edit mode</p>
+                        <h4>Adjust routing, ownership, and ticket detail</h4>
+                    </div>
+                    <button class="ghost-button editor-close" type="button" data-ticket-editor-toggle aria-expanded="true">Done</button>
+                </div>
 
-            <label class="field-shell">
-                <span>Assigned to</span>
-                <textarea data-autosize onchange="ticketApp.updateTicket('{{ ticket.id }}', 'assigned_to', this.value)">{{ ticket.assigned_to }}</textarea>
-            </label>
+                <div class="field-row">
+                    <label class="field-shell">
+                        <span>Status</span>
+                        <select onchange="ticketApp.updateTicket('{{ ticket.id }}', 'status', this.value)">
+                            {% for status in status_options %}
+                            <option value="{{ status }}" {% if ticket.status == status %}selected{% endif %}>{{ status }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
 
-            <label class="field-shell">
-                <span>Description</span>
-                <textarea data-autosize class="field-lg" onchange="ticketApp.updateTicket('{{ ticket.id }}', 'description', this.value)">{{ ticket.description }}</textarea>
-            </label>
+                    <label class="field-shell">
+                        <span>Priority</span>
+                        <select onchange="ticketApp.updateTicket('{{ ticket.id }}', 'priority', this.value)">
+                            {% for priority in priority_options %}
+                            <option value="{{ priority }}" {% if ticket.priority == priority %}selected{% endif %}>{{ priority }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
 
-            <label class="field-shell">
-                <span>Notes</span>
-                <textarea data-autosize onchange="ticketApp.updateTicket('{{ ticket.id }}', 'notes', this.value)">{{ ticket.notes }}</textarea>
-            </label>
+                <div class="field-row">
+                    <label class="field-shell">
+                        <span>Category</span>
+                        <select onchange="ticketApp.updateTicket('{{ ticket.id }}', 'category', this.value)">
+                            {% for category in category_options %}
+                            <option value="{{ category }}" {% if ticket.category == category %}selected{% endif %}>{{ category }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+
+                    <label class="field-shell">
+                        <span>Service</span>
+                        <select onchange="ticketApp.updateTicket('{{ ticket.id }}', 'service', this.value)">
+                            {% for service in service_options %}
+                            <option value="{{ service }}" {% if ticket.service == service %}selected{% endif %}>{{ service }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+
+                <div class="field-row">
+                    <label class="field-shell field-shell--wide">
+                        <span>Headline</span>
+                        <textarea data-autosize onchange="ticketApp.updateTicket('{{ ticket.id }}', 'headline', this.value)">{{ ticket.headline }}</textarea>
+                    </label>
+                    <label class="field-shell">
+                        <span>Assigned to</span>
+                        <select onchange="ticketApp.updateAssignment('{{ ticket.id }}', this)">
+                            <option value="" data-name="">Unassigned</option>
+                            {% for user in ticket.assignment_options %}
+                            <option value="{{ user.id }}" data-name="{{ user.name }}" {% if (ticket.assigned_to_id and ticket.assigned_to_id == user.id) or (not ticket.assigned_to_id and ticket.assigned_to == user.name) %}selected{% endif %}>{{ user.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+
+                <label class="field-shell">
+                    <span>Description</span>
+                    <textarea data-autosize class="field-lg" onchange="ticketApp.updateTicket('{{ ticket.id }}', 'description', this.value)">{{ ticket.description }}</textarea>
+                </label>
+
+                <label class="field-shell">
+                    <span>Notes</span>
+                    <textarea data-autosize onchange="ticketApp.updateTicket('{{ ticket.id }}', 'notes', this.value)">{{ ticket.notes }}</textarea>
+                </label>
+            </div>
         </article>
         {% endfor %}
     </div>

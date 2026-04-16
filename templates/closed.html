@@ -4,8 +4,27 @@
 <section class="page-hero glass-panel">
     <div>
         <p class="eyebrow">Archive</p>
-        <h2>Review completed work with the same triage fields and context you used to resolve it.</h2>
+        <h2>Review completed work with outcome context, ownership history, and fast reopen controls.</h2>
+        <p>The archive should be useful, not dead storage. These cards keep enough signal visible for audits and operational learning.</p>
     </div>
+</section>
+
+<section class="signal-grid signal-grid--three">
+    <article class="signal-card glass-panel">
+        <span class="signal-card__label">Closed workload</span>
+        <strong>{{ filtered_count }}</strong>
+        <p>Completed tickets currently matching your archive filters.</p>
+    </article>
+    <article class="signal-card glass-panel">
+        <span class="signal-card__label">Ownership context</span>
+        <strong>{{ owners|length }}</strong>
+        <p>Distinct owners represented in the resolved queue.</p>
+    </article>
+    <article class="signal-card glass-panel">
+        <span class="signal-card__label">Actionability</span>
+        <strong>Reopen ready</strong>
+        <p>Bring tickets back into the active desk immediately when follow-up is needed.</p>
+    </article>
 </section>
 
 <form class="toolbar glass-panel" id="closedFilters" method="get">
@@ -42,6 +61,24 @@
             </select>
         </label>
         <label class="search-shell compact">
+            <span>Service</span>
+            <select id="closedServiceFilter" name="service">
+                <option value="">All services</option>
+                {% for service in service_options %}
+                <option value="{{ service }}" {% if filters.service == service %}selected{% endif %}>{{ service }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="search-shell compact">
+            <span>Requester</span>
+            <select id="closedRequesterFilter" name="requester">
+                <option value="">All requesters</option>
+                {% for requester in requesters %}
+                <option value="{{ requester }}" {% if filters.requester == requester %}selected{% endif %}>{{ requester }}</option>
+                {% endfor %}
+            </select>
+        </label>
+        <label class="search-shell compact">
             <span>Sort</span>
             <select id="closedSortFilter" name="sort">
                 {% for sort_key, sort_label in sort_options.items() %}
@@ -73,6 +110,21 @@
             </div>
         </div>
 
+        <div class="archive-timeline">
+            <div class="timeline-node">
+                <span>Opened</span>
+                <strong>{{ ticket.display_opened_at }}</strong>
+            </div>
+            <div class="timeline-node">
+                <span>Closed</span>
+                <strong>{{ ticket.display_updated_at }}</strong>
+            </div>
+            <div class="timeline-node">
+                <span>Age</span>
+                <strong>{{ ticket.age_label }}</strong>
+            </div>
+        </div>
+
         <dl class="archive-meta">
             <div>
                 <dt>Requester</dt>
@@ -85,18 +137,6 @@
             <div>
                 <dt>Owner</dt>
                 <dd>{{ ticket.assigned_to or "Unassigned" }}</dd>
-            </div>
-            <div>
-                <dt>Opened</dt>
-                <dd>{{ ticket.display_opened_at }}</dd>
-            </div>
-            <div>
-                <dt>Closed</dt>
-                <dd>{{ ticket.display_updated_at }}</dd>
-            </div>
-            <div>
-                <dt>Age</dt>
-                <dd>{{ ticket.age_label }}</dd>
             </div>
         </dl>
 

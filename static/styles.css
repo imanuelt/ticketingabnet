@@ -108,7 +108,8 @@ textarea {
 .archive-card__header h3,
 .focus-panel h3,
 .empty-state h3,
-.unauthorized-panel h2 {
+.unauthorized-panel h2,
+.editor-header h4 {
     font-family: "Space Grotesk", sans-serif;
 }
 
@@ -258,6 +259,7 @@ textarea {
     border-radius: 999px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text);
 }
 
 .ghost-button:hover,
@@ -303,7 +305,8 @@ textarea {
 .unauthorized-panel p,
 .signal-card p,
 .focus-item p,
-.empty-mini p {
+.empty-mini p,
+.ticket-notes-strip p {
     color: var(--muted);
 }
 
@@ -338,11 +341,57 @@ textarea {
     font-size: 2rem;
 }
 
+.command-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.1rem;
+}
+
+.command-card {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 1.2rem;
+    border-radius: 1.4rem;
+    transition: transform 180ms ease, border-color 180ms ease;
+}
+
+.command-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(105, 228, 255, 0.35);
+}
+
+.command-card__icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(105, 228, 255, 0.24), rgba(142, 124, 255, 0.22));
+    font-size: 1.3rem;
+    flex: 0 0 auto;
+}
+
+.command-card strong {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.command-card p {
+    margin: 0;
+    color: var(--muted);
+}
+
 .signal-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1rem;
     margin-bottom: 1.3rem;
+}
+
+.signal-grid--three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .signal-card {
@@ -366,8 +415,10 @@ textarea {
 .pager__pages,
 .mission-layout,
 .badge-stack,
-.meta-grid,
-.focus-list {
+.focus-list,
+.ticket-actions,
+.ticket-storyline,
+.archive-timeline {
     display: flex;
     gap: 1rem;
 }
@@ -403,7 +454,10 @@ textarea {
 .preview-block span,
 .archive-meta dt,
 .preview-meta dt,
-.meta-pill span {
+.meta-pill span,
+.story-pill span,
+.timeline-node span,
+.ticket-notes-strip span {
     color: var(--muted);
     font-size: 0.84rem;
 }
@@ -435,6 +489,10 @@ textarea {
 
 .field-shell textarea.field-lg {
     min-height: 148px;
+}
+
+.field-shell--wide {
+    flex: 1.6;
 }
 
 .search-shell input:focus,
@@ -507,7 +565,8 @@ textarea {
 .focus-item__top,
 .preview-card__header,
 .ticket-card__header,
-.archive-card__header {
+.archive-card__header,
+.editor-header {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
@@ -541,10 +600,49 @@ textarea {
     padding: 1.3rem;
 }
 
+.ticket-card {
+    display: grid;
+    gap: 1rem;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+        var(--panel);
+}
+
+.ticket-card.is-editing {
+    border-color: rgba(105, 228, 255, 0.28);
+    box-shadow: 0 26px 60px rgba(0, 7, 20, 0.52), 0 0 0 1px rgba(105, 228, 255, 0.1);
+}
+
 .ticket-card__header h3,
 .archive-card__header h3 {
     margin: 0.28rem 0 0;
     font-size: 1.35rem;
+}
+
+.ticket-summary {
+    margin: 0;
+    color: #d9e8ff;
+    line-height: 1.6;
+}
+
+.ticket-storyline,
+.archive-timeline {
+    flex-wrap: wrap;
+}
+
+.story-pill,
+.timeline-node {
+    min-width: 140px;
+    padding: 0.85rem 0.95rem;
+    border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.story-pill strong,
+.timeline-node strong {
+    display: block;
+    margin-top: 0.35rem;
 }
 
 .badge-stack {
@@ -605,7 +703,6 @@ textarea {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.75rem;
-    margin: 1rem 0;
 }
 
 .meta-pill {
@@ -619,6 +716,37 @@ textarea {
     margin-top: 0.35rem;
 }
 
+.ticket-notes-strip {
+    padding: 1rem 1.05rem;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, rgba(142, 124, 255, 0.08), rgba(105, 228, 255, 0.05));
+    border: 1px solid rgba(142, 124, 255, 0.14);
+}
+
+.ticket-notes-strip p {
+    margin: 0.35rem 0 0;
+}
+
+.ticket-actions {
+    flex-wrap: wrap;
+}
+
+.ticket-editor {
+    display: grid;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.editor-header h4 {
+    margin: 0.3rem 0 0;
+    font-size: 1.05rem;
+}
+
+.editor-close {
+    align-self: center;
+}
+
 .archive-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
@@ -630,7 +758,7 @@ textarea {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.8rem;
-    margin: 1rem 0;
+    margin: 0;
 }
 
 .archive-meta div,
@@ -749,7 +877,8 @@ textarea {
 }
 
 @media (max-width: 1260px) {
-    .signal-grid {
+    .signal-grid,
+    .command-strip {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
@@ -793,6 +922,7 @@ textarea {
 
     .hero-metrics,
     .signal-grid,
+    .command-strip,
     .meta-grid,
     .archive-meta,
     .preview-meta,
@@ -802,8 +932,11 @@ textarea {
     }
 
     .results-meta,
-    .pager {
+    .pager,
+    .field-row,
+    .ticket-storyline,
+    .archive-timeline {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
     }
 }

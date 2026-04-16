@@ -2,12 +2,14 @@ import base64
 import json
 import os
 from math import ceil
+from urllib import request as urlrequest
 from datetime import datetime, timedelta
 from functools import wraps
 from urllib.parse import quote, urlencode
 
 import pytz
 from azure.cosmos import CosmosClient
+from azure.identity import ManagedIdentityCredential
 from dotenv import load_dotenv
 from flask import Flask, abort, g, jsonify, redirect, render_template, request, url_for
 
@@ -27,6 +29,7 @@ ALLOWED_TENANT_ID = os.getenv("ALLOWED_TENANT_ID")
 REQUIRED_APP_ROLE = os.getenv("REQUIRED_APP_ROLE", "TaskUser")
 DEV_AUTH_BYPASS = os.getenv("DEV_AUTH_BYPASS", "false").lower() == "true"
 TICKETS_PER_PAGE = max(int(os.getenv("TICKETS_PER_PAGE", "18")), 1)
+APP_AUTH_ENTERPRISE_APP_OBJECT_ID = os.getenv("APP_AUTH_ENTERPRISE_APP_OBJECT_ID", "")
 
 PRIORITY_OPTIONS = ["Low", "Medium", "High", "Urgent"]
 CATEGORY_OPTIONS = ["Incident", "Access", "Service Request", "Change", "Billing", "Question"]
@@ -45,6 +48,7 @@ PERSISTED_FIELDS = {
     "id",
     "headline",
     "assigned_to",
+    "assigned_to_id",
     "status",
     "description",
     "notes",
@@ -66,6 +70,7 @@ PERSISTED_FIELDS = {
 }
 
 container = None
+assignable_users_cache = {"users": [], "loaded_at": None}
 
 
 def now_dt():
@@ -170,6 +175,7 @@ def normalize_ticket(ticket):
             "priority": priority,
             "category": category,
             "service": service,
+            "assigned_to_id": normalized.get("assigned_to_id") or "",
             "source": normalized.get("source") or "Internal Desk",
             "requester_name": normalized.get("requester_name") or "Mano Team",
             "requester_email": normalized.get("requester_email") or "",
@@ -198,6 +204,90 @@ def normalize_ticket(ticket):
         }
     )
     return normalized
+
+
+def get_graph_credential():
+    return ManagedIdentityCredential()
+
+
+def load_assignable_users_from_graph():
+    if not APP_AUTH_ENTERPRISE_APP_OBJECT_ID:
+        return []
+
+    token = get_graph_credential().get_token("https://graph.microsoft.com/.default")
+    next_url = (
+        "https://graph.microsoft.com/v1.0/servicePrincipals/"
+        f"{APP_AUTH_ENTERPRISE_APP_OBJECT_ID}/appRoleAssignedTo"
+        "?$select=principalId,principalDisplayName,principalType"
+    )
+    users = []
+    seen = set()
+
+    while next_url:
+        req = urlrequest.Request(
+            next_url,
+            headers={
+                "Authorization": f"Bearer {token.token}",
+                "Accept": "application/json",
+            },
+        )
+        with urlrequest.urlopen(req, timeout=15) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+
+        for item in payload.get("value", []):
+            if item.get("principalType") != "User":
+                continue
+            object_id = item.get("principalId")
+            display_name = item.get("principalDisplayName")
+            if not object_id or not display_name or object_id in seen:
+                continue
+            seen.add(object_id)
+            users.append({"id": object_id, "name": display_name})
+
+        next_url = payload.get("@odata.nextLink")
+
+    return sorted(users, key=lambda user: user["name"].lower())
+
+
+def get_assignable_users():
+    cache_time = assignable_users_cache["loaded_at"]
+    if cache_time and now_dt() - cache_time < timedelta(minutes=10):
+        return assignable_users_cache["users"]
+
+    users = []
+    try:
+        users = load_assignable_users_from_graph()
+    except Exception as exc:
+        print(f"Unable to load assignable users from Microsoft Graph: {exc}")
+
+    if not users:
+        fallback_names = sorted({ticket["assigned_to"] for ticket in load_tickets() if ticket.get("assigned_to")})
+        users = [{"id": "", "name": name} for name in fallback_names]
+
+    assignable_users_cache["users"] = users
+    assignable_users_cache["loaded_at"] = now_dt()
+    return users
+
+
+def ensure_assignment_option(users, ticket):
+    assigned_name = ticket.get("assigned_to", "").strip()
+    assigned_id = ticket.get("assigned_to_id", "").strip()
+    if not assigned_name:
+        return users
+    if any(user["name"] == assigned_name or (assigned_id and user["id"] == assigned_id) for user in users):
+        return users
+    return [{"id": assigned_id, "name": assigned_name}] + users
+
+
+def resolve_assignment(form_or_payload):
+    assigned_to_id = (form_or_payload.get("assigned_to_id") or "").strip()
+    assigned_to = (form_or_payload.get("assigned_to") or "").strip()
+    for user in get_assignable_users():
+        if assigned_to_id and user["id"] == assigned_to_id:
+            return user["name"], user["id"]
+        if assigned_to and user["name"] == assigned_to:
+            return user["name"], user["id"]
+    return assigned_to, assigned_to_id
 
 
 def get_required_env(name):
@@ -300,6 +390,8 @@ def parse_ticket_filters(default_status=""):
     status = request.args.get("status", default_status)
     priority = request.args.get("priority", "")
     category = request.args.get("category", "")
+    service = request.args.get("service", "")
+    requester = request.args.get("requester", "").strip()
     sort = request.args.get("sort", "sla")
     valid_statuses = {"", *STATUS_OPTIONS}
 
@@ -309,6 +401,8 @@ def parse_ticket_filters(default_status=""):
         priority = ""
     if category and category not in CATEGORY_OPTIONS:
         category = ""
+    if service and service not in SERVICE_OPTIONS:
+        service = ""
     if sort not in SORT_OPTIONS:
         sort = "sla"
 
@@ -324,6 +418,8 @@ def parse_ticket_filters(default_status=""):
         "status": status,
         "priority": priority,
         "category": category,
+        "service": service,
+        "requester": requester,
         "sort": sort,
         "page": page,
     }
@@ -355,9 +451,13 @@ def filter_tickets(tickets, filters):
             continue
         if filters["owner"] and ticket.get("assigned_to") != filters["owner"]:
             continue
+        if filters["requester"] and ticket.get("requester_name") != filters["requester"]:
+            continue
         if filters["priority"] and ticket.get("priority") != filters["priority"]:
             continue
         if filters["category"] and ticket.get("category") != filters["category"]:
+            continue
+        if filters["service"] and ticket.get("service") != filters["service"]:
             continue
         if search_value and search_value not in ticket_search_blob(ticket):
             continue
@@ -456,6 +556,7 @@ def inject_layout_context():
         "category_options": CATEGORY_OPTIONS,
         "service_options": SERVICE_OPTIONS,
         "sort_options": SORT_OPTIONS,
+        "status_options": STATUS_OPTIONS,
     }
 
 
@@ -463,6 +564,7 @@ def inject_layout_context():
 @require_access
 def home():
     all_tickets = sorted_tickets()
+    assignable_users = get_assignable_users()
     filters = parse_ticket_filters()
     filtered_tickets = sort_tickets(filter_tickets(all_tickets, filters), filters["sort"])
     pagination = build_pagination(len(filtered_tickets), filters["page"])
@@ -476,10 +578,12 @@ def home():
     due_soon_tickets = [ticket for ticket in all_tickets if ticket["status"] != "Closed" and ticket["sla_state"] == "due-soon"]
     unassigned_tickets = [ticket for ticket in all_tickets if not ticket["assigned_to"].strip()]
     owners = sorted({ticket["assigned_to"] for ticket in all_tickets if ticket["assigned_to"]})
+    requesters = sorted({ticket["requester_name"] for ticket in all_tickets if ticket["requester_name"]})
     focus_tickets = sort_tickets(
         [ticket for ticket in all_tickets if ticket["status"] != "Closed" and ticket["sla_state"] in {"overdue", "due-soon"}],
         "sla",
     )[:5]
+    tickets = [normalize_ticket({**ticket, "assignment_options": ensure_assignment_option(assignable_users, ticket)}) for ticket in tickets]
 
     return render_template(
         "index.html",
@@ -494,10 +598,12 @@ def home():
         due_soon_count=len(due_soon_tickets),
         unassigned_count=len(unassigned_tickets),
         owners=owners,
+        requesters=requesters,
         filters=filters,
         filtered_count=len(filtered_tickets),
         pagination=pagination,
         focus_tickets=focus_tickets,
+        assignable_users=assignable_users,
     )
 
 
@@ -508,10 +614,12 @@ def create_ticket():
         data = request.form
         opened_at = now_dt()
         priority = normalize_priority(data.get("priority"))
+        assigned_to, assigned_to_id = resolve_assignment(data)
         new_ticket = {
             "id": data["id"],
             "headline": data["headline"],
-            "assigned_to": data["assigned_to"],
+            "assigned_to": assigned_to,
+            "assigned_to_id": assigned_to_id,
             "status": normalize_status(data["status"]),
             "priority": priority,
             "category": normalize_category(data.get("category")),
@@ -531,7 +639,12 @@ def create_ticket():
         get_container().create_item(serialize_ticket(new_ticket))
         return redirect(url_for("home"))
 
-    return render_template("create.html", page_name="create", ticket_id=next_ticket_id())
+    return render_template(
+        "create.html",
+        page_name="create",
+        ticket_id=next_ticket_id(),
+        assignable_users=get_assignable_users(),
+    )
 
 
 @app.route("/submit_ticket", methods=["GET", "POST"])
@@ -546,6 +659,7 @@ def submit_ticket():
             "id": str(next_ticket_id()),
             "headline": data["headline"],
             "assigned_to": "Mano Operations",
+            "assigned_to_id": "",
             "status": "Open",
             "priority": priority,
             "category": normalize_category(data.get("category")),
@@ -575,9 +689,14 @@ def submit_ticket():
             "sla_due_at": default_sla_due(opened_at, priority).isoformat(),
         }
         get_container().create_item(serialize_ticket(new_ticket))
-        return render_template("submit_ticket.html", page_name="submit", ticket_id=new_ticket["id"])
+        return render_template(
+            "submit_ticket.html",
+            page_name="submit",
+            ticket_id=new_ticket["id"],
+            assignable_users=get_assignable_users(),
+        )
 
-    return render_template("submit_ticket.html", page_name="submit")
+    return render_template("submit_ticket.html", page_name="submit", assignable_users=get_assignable_users())
 
 
 @app.route("/closed")
@@ -594,6 +713,7 @@ def closed():
         page_name="closed",
         tickets=tickets,
         owners=sorted({ticket["assigned_to"] for ticket in all_tickets if ticket["assigned_to"]}),
+        requesters=sorted({ticket["requester_name"] for ticket in all_tickets if ticket["requester_name"]}),
         filters=filters,
         filtered_count=len(filtered_tickets),
         pagination=pagination,
@@ -628,19 +748,27 @@ def update_ticket():
         ticket = normalize_ticket(find_ticket(data["id"]))
         field = data["field"]
         value = data["value"]
-        if field not in {"headline", "assigned_to", "status", "description", "notes", "priority", "category", "service"}:
+        if field not in {"headline", "assignment", "status", "description", "notes", "priority", "category", "service"}:
             abort(400)
 
-        if field == "status":
+        if field == "assignment":
+            assigned_to, assigned_to_id = resolve_assignment(value if isinstance(value, dict) else {})
+            ticket["assigned_to"] = assigned_to
+            ticket["assigned_to_id"] = assigned_to_id
+        elif field == "status":
             value = normalize_status(value)
+            ticket[field] = value
         elif field == "priority":
             value = normalize_priority(value)
+            ticket[field] = value
         elif field == "category":
             value = normalize_category(value)
+            ticket[field] = value
         elif field == "service":
             value = normalize_service(value)
-
-        ticket[field] = value
+            ticket[field] = value
+        else:
+            ticket[field] = value
         ticket["updated_at"] = now_iso()
 
         if field == "status" and value == "Closed":
